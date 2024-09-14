@@ -1,6 +1,7 @@
 import fs from "fs";
 import getResearchSubjects from "./ResearchSubject";
 
+// Write research subjects to a file
 fs.writeFile(
   "../../researchSubjectsWiki.json",
   getResearchSubjects(),

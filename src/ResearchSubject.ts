@@ -52,19 +52,34 @@ for (const researchSubject in researchSubjectsJSON) {
 
 // Expand exotics cost
 for (const researchSubject in researchSubjectsJSON) {
-  const { exotics, ...otherFields }: any =
+  const { exotics, exotic_price, ...otherFields }: any =
     researchSubjectsJSON[researchSubject];
   let andvar: number = 0;
   let tauranite: number = 0;
   let indurium: number = 0;
   let kalanide: number = 0;
   let quarnium: number = 0;
-  if (exotics) {
-    andvar = getExoticPrice(getExoticAliasConversion("andvar"), exotics);
-    tauranite = getExoticPrice(getExoticAliasConversion("tauranite"), exotics);
-    indurium = getExoticPrice(getExoticAliasConversion("indurium"), exotics);
-    kalanide = getExoticPrice(getExoticAliasConversion("kalanide"), exotics);
-    quarnium = getExoticPrice(getExoticAliasConversion("quarnium"), exotics);
+  if (exotics || exotic_price) {
+    andvar = getExoticPrice(
+      getExoticAliasConversion("andvar"),
+      exotics || exotic_price
+    );
+    tauranite = getExoticPrice(
+      getExoticAliasConversion("tauranite"),
+      exotics || exotic_price
+    );
+    indurium = getExoticPrice(
+      getExoticAliasConversion("indurium"),
+      exotics || exotic_price
+    );
+    kalanide = getExoticPrice(
+      getExoticAliasConversion("kalanide"),
+      exotics || exotic_price
+    );
+    quarnium = getExoticPrice(
+      getExoticAliasConversion("quarnium"),
+      exotics || exotic_price
+    );
   }
 
   researchSubjectsJSON[researchSubject] = {
@@ -99,7 +114,9 @@ for (const researchSubject in researchSubjectsJSON) {
   const localizedPrerequisites = prerequisites
     ? [
         ...prerequisites[0].map((prerequiste: string) => {
-          return researchSubjectsJSON[prerequiste].name;
+          return researchSubjectsJSON[prerequiste][
+            name.replace("_research_subject_name", "")
+          ];
         }),
       ]
     : [];
