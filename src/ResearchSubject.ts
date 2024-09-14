@@ -111,6 +111,38 @@ for (const researchSubject in researchSubjectsJSON) {
   };
 }
 
+// Final adjustments for readability
+const prettifiedResearchSubjectsJSON: any =
+  createPrettifiedResarchSubjectsJSON(researchSubjectsJSON);
+
+function createPrettifiedResarchSubjectsJSON(researchSubjectsJSON: any) {
+  let prettifiedResearchSubjectsJSON: any = {};
+  for (const researchSubject in researchSubjectsJSON) {
+    const {
+      name,
+      description,
+      tier,
+      field,
+      research_time,
+      ...otherFields
+    }: any = researchSubjectsJSON[researchSubject];
+    const id: string = researchSubject;
+    const race: string = capitalize(researchSubject.split("_")[0]);
+    const key: string = `${race} ${name}`;
+    prettifiedResearchSubjectsJSON[key] = {
+      id,
+      name,
+      description,
+      tier,
+      field,
+      research_time,
+      race,
+      ...otherFields,
+    };
+  }
+  return prettifiedResearchSubjectsJSON;
+}
+
 function createRawResearchSubjectsJSON(rawResearchSubjectFiles: fs.Dirent[]) {
   let rawResearchSubjectsJSON: any = {};
   rawResearchSubjectFiles.forEach((file: any) => {
@@ -122,5 +154,6 @@ function createRawResearchSubjectsJSON(rawResearchSubjectFiles: fs.Dirent[]) {
 }
 
 export default function getResearchSubjects() {
-  return JSON.stringify(researchSubjectsJSON);
+  console.log(prettifiedResearchSubjectsJSON);
+  return JSON.stringify(prettifiedResearchSubjectsJSON, null, 2);
 }
