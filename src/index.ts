@@ -1,7 +1,7 @@
 import fs from "fs";
 import getResearchSubjects from "./ResearchSubject";
 
-// Write research subjects to a file
+// Write research subjects to a file.
 fs.writeFile(
   "../../researchSubjectsWiki.json",
   getResearchSubjects(),
@@ -13,3 +13,5 @@ fs.writeFile(
     }
   }
 );
+
+// TO-DO: Upload research subjects to directly to wiki.

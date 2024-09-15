@@ -17,13 +17,15 @@ const rawResearchSubjectFiles = fs
     return path.extname(file.name) === ".research_subject";
   });
 
+// Unmanipulated research subject JSON objects.
 const rawResearchSubjectsJSON = createRawResearchSubjectsJSON(
   rawResearchSubjectFiles
 );
 
+// Most of our data manipulation will be done on this object.
 const researchSubjectsJSON: any = { ...rawResearchSubjectsJSON };
 
-// Filter out irrelevant fields
+// Filter out irrelevant fields.
 for (const researchSubject in researchSubjectsJSON) {
   const {
     version,
@@ -36,21 +38,22 @@ for (const researchSubject in researchSubjectsJSON) {
   researchSubjectsJSON[researchSubject] = { ...relevantFields };
 }
 
-// Expand credit, metal, and crystal cost
+// Expand credit, metal, and crystal cost (replaces "price" field with credits, metal, and crystal fields).
 for (const researchSubject in researchSubjectsJSON) {
   const { price, ...otherFields }: any = researchSubjectsJSON[researchSubject];
   const credits: number = researchSubjectsJSON[researchSubject].price.credits;
-  const metals: number = researchSubjectsJSON[researchSubject].price.metal;
+  const metal: number = researchSubjectsJSON[researchSubject].price.metal;
   const crystal: number = researchSubjectsJSON[researchSubject].price.crystal;
   researchSubjectsJSON[researchSubject] = {
     ...otherFields,
     credits: credits,
-    metal: metals,
+    metal: metal,
     crystal: crystal,
   };
 }
 
-// Expand exotics cost
+// Expand exotics cost (finds "exotics" and "exotic_price" arrays and extracts the prices).
+// Actually, there might be a difference between "exotics" and "exotic_price". Need to verify.
 for (const researchSubject in researchSubjectsJSON) {
   const { exotics, exotic_price, ...otherFields }: any =
     researchSubjectsJSON[researchSubject];
@@ -93,6 +96,7 @@ for (const researchSubject in researchSubjectsJSON) {
 }
 
 // Normalize research tier and field
+// Example: {domain: 'military', tier: 2, domain: 'military_assault"} becomes {tier: Military 2, domain: Assault}.
 for (const researchSubject in researchSubjectsJSON) {
   const { domain, tier, field, ...otherFields }: any =
     researchSubjectsJSON[researchSubject];
@@ -105,7 +109,8 @@ for (const researchSubject in researchSubjectsJSON) {
   };
 }
 
-// Find localized text for name, description
+// Find localized text for name and description.
+// Be sure to have LOCALIZED_FILE="en.localized_text" set in your .env.
 for (const researchSubject in researchSubjectsJSON) {
   const { name, description, ...otherFields }: any =
     researchSubjectsJSON[researchSubject];
@@ -118,7 +123,7 @@ for (const researchSubject in researchSubjectsJSON) {
   };
 }
 
-// Find localized text for prerequisites
+// Find localized text for prerequisites. This section assumes that the names have already been localized.
 for (const researchSubject in researchSubjectsJSON) {
   const { prerequisites, ...otherFields }: any =
     researchSubjectsJSON[researchSubject];
@@ -135,7 +140,7 @@ for (const researchSubject in researchSubjectsJSON) {
   };
 }
 
-// Final adjustments for readability
+// Final adjustments for readability. Adds race field, more human readable key, id, and re-orders fields.
 const prettifiedResearchSubjectsJSON: any =
   createPrettifiedResarchSubjectsJSON(researchSubjectsJSON);
 
@@ -178,6 +183,6 @@ function createRawResearchSubjectsJSON(rawResearchSubjectFiles: fs.Dirent[]) {
 }
 
 export default function getResearchSubjects() {
-  console.log(prettifiedResearchSubjectsJSON);
+  console.log(rawResearchSubjectsJSON);
   return JSON.stringify(prettifiedResearchSubjectsJSON, null, 2);
 }
