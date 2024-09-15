@@ -6,7 +6,7 @@ Data miner for Sins of a Solar Empire 2. User dshaver has already created a vers
 
 ## Prerequisites
 
-- Have Node.js installed (I'm using)
+- Have Node.js installed (I'm using version 20.17)
 
 After cloning the repo and pulling it to your local machine:
 
