@@ -33,6 +33,7 @@ for (const researchSubject in researchSubjectsJSON) {
     name_uppercase,
     hud_icon,
     tooltip_picture,
+    extra_text_filter_strings,
     ...relevantFields
   }: any = researchSubjectsJSON[researchSubject];
   researchSubjectsJSON[researchSubject] = { ...relevantFields };
@@ -141,6 +142,7 @@ for (const researchSubject in researchSubjectsJSON) {
 }
 
 // Final adjustments for readability. Adds race field, more human readable key, id, and re-orders fields.
+// Also replaces "Trader" with "TEC"
 const prettifiedResearchSubjectsJSON: any =
   createPrettifiedResarchSubjectsJSON(researchSubjectsJSON);
 
@@ -156,7 +158,8 @@ function createPrettifiedResarchSubjectsJSON(researchSubjectsJSON: any) {
       ...otherFields
     }: any = researchSubjectsJSON[researchSubject];
     const id: string = researchSubject;
-    const race: string = capitalize(researchSubject.split("_")[0]);
+    let race: string = capitalize(researchSubject.split("_")[0]);
+    race = race === "Trader" ? "TEC" : race;
     const key: string = `${race} ${name}`;
     prettifiedResearchSubjectsJSON[key] = {
       id,
