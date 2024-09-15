@@ -3,11 +3,11 @@ import fs from "fs";
 import getResearchSubjects, {
   getRawResearchSubjects,
 } from "./entities/ResearchSubject";
-import getUnits, { getRawUnits } from "./entities/Units";
+import { getShipUnits, getRawShipUnits } from "./entities/Units";
 
 /* Units */
 // Wiki-ready units
-fs.writeFile("../../unitsWiki.json", getUnits(), (err) => {
+fs.writeFile("../../shipUnitsWiki.json", getShipUnits(), (err) => {
   if (err) {
     console.error("Error writing file:", err);
   } else {
@@ -15,7 +15,7 @@ fs.writeFile("../../unitsWiki.json", getUnits(), (err) => {
   }
 });
 // Raw units
-fs.writeFile("../../unitsRaw.json", getRawUnits(), (err) => {
+fs.writeFile("../../shipUnitsRaw.json", getRawShipUnits(), (err) => {
   if (err) {
     console.error("Error writing file:", err);
   } else {

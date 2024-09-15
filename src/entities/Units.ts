@@ -2,6 +2,7 @@ import {
   createRawJSON,
   expandPrices,
   expandExotics,
+  getLocalizedText,
   getRawFiles,
 } from "../util";
 import getWeapons, { getWeaponById } from "./Weapons";
@@ -55,13 +56,24 @@ unitsJSON = expandExotics(unitsJSON);
 // Extract durability, armor, hull, shield, and armor strength
 unitsJSON = extractHealth(unitsJSON);
 
+// Find localized text for name and description.
+// Be sure to have LOCALIZED_FILE="en.localized_text" set in your .env.
+for (const unit in unitsJSON) {
+  const { name, ...otherFields }: any = unitsJSON[unit];
+  const localizedName = getLocalizedText(`${unit}_name`);
+  unitsJSON[unit] = {
+    name: localizedName,
+    ...otherFields,
+  };
+}
+
 // Find weapon data
 for (const unit in unitsJSON) {
   const { weapons, ...otherFields }: { weapons: any } = unitsJSON[unit];
+  // Get weapons from Weapons.ts
   let parsedWeapons: { weapons: any[] } = { weapons: [] };
   if (weapons) {
     {
-      console.log(weapons.weapons);
       parsedWeapons = {
         weapons: [
           ...weapons.weapons.map((weapon: any) => {
@@ -71,7 +83,19 @@ for (const unit in unitsJSON) {
       };
     }
   }
-  unitsJSON[unit] = { weapons: parsedWeapons, ...otherFields };
+  // Remove duplicate weapons
+  parsedWeapons["weapons"] = [
+    ...new Set(
+      parsedWeapons["weapons"].map((weapon: any) => {
+        return JSON.stringify(weapon);
+      })
+    ),
+  ].map((weapon: any) => JSON.parse(weapon));
+  // Remove weapons not found (investigate)
+  parsedWeapons["weapons"] = parsedWeapons["weapons"].filter((weapon: any) => {
+    return JSON.stringify(weapon) !== "{}";
+  });
+  unitsJSON[unit] = { ...otherFields, weapons: parsedWeapons };
 }
 
 function extractHealth(objectsJSON: any) {
@@ -105,6 +129,37 @@ export function getRawUnits() {
   return JSON.stringify(rawUnitsJSON, null, 2);
 }
 
-export default function getUnits() {
-  return JSON.stringify(unitsJSON, null, 2);
+export function getRawShipUnits() {
+  let resultingJSON: any = {};
+  for (const unit in rawUnitsJSON) {
+    if (
+      (unit.includes("capital_ship") ||
+        unit.includes("corvette") ||
+        unit.includes("frigate") ||
+        unit.includes("cruiser") ||
+        unit.includes("titan")) &&
+      !unit.includes("structure")
+    ) {
+      resultingJSON[unit] = unitsJSON[unit];
+    }
+  }
+  return JSON.stringify(resultingJSON, null, 2);
+}
+
+export function getShipUnits() {
+  let resultingJSON: any = {};
+  for (const unit in unitsJSON) {
+    if (
+      (unit.includes("capital_ship") ||
+        unit.includes("corvette") ||
+        unit.includes("frigate") ||
+        unit.includes("cruiser") ||
+        unit.includes("titan")) &&
+      !unit.includes("structure")
+    ) {
+      resultingJSON[unit] = unitsJSON[unit];
+    }
+  }
+
+  return JSON.stringify(resultingJSON, null, 2);
 }
