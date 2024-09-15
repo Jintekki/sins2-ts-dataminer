@@ -16,6 +16,7 @@ After cloning the repo and pulling it to your local machine:
 - `npm run dev`
 
 Assuming your environment variables have been set, the program will run and create the JSON files in the directory above your local repo.
+The program will automatically re-run whenever you save as long as you keep the console up.
 
 # .env
 

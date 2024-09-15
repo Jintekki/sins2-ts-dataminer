@@ -182,7 +182,10 @@ function createRawResearchSubjectsJSON(rawResearchSubjectFiles: fs.Dirent[]) {
   return rawResearchSubjectsJSON;
 }
 
+export function getRawResearchSubjects() {
+  return JSON.stringify(rawResearchSubjectsJSON, null, 2);
+}
+
 export default function getResearchSubjects() {
-  console.log(rawResearchSubjectsJSON);
   return JSON.stringify(prettifiedResearchSubjectsJSON, null, 2);
 }

@@ -1,5 +1,5 @@
 import fs from "fs";
-import getResearchSubjects from "./ResearchSubject";
+import getResearchSubjects, { getRawResearchSubjects } from "./ResearchSubject";
 
 // Write research subjects to a file.
 fs.writeFile(
@@ -9,9 +9,20 @@ fs.writeFile(
     if (err) {
       console.error("Error writing file:", err);
     } else {
-      console.log("Research subjects file has been written successfully");
+      console.log("Wiki-ready subjects file has been written successfully");
     }
   }
 );
 
-// TO-DO: Upload research subjects to directly to wiki.
+// // Write raw research subject file.
+// fs.writeFile(
+//   "../../researchSubjectsRaw.json",
+//   getRawResearchSubjects(),
+//   (err) => {
+//     if (err) {
+//       console.error("Error writing file:", err);
+//     } else {
+//       console.log("Raw research subjects file has been written successfully");
+//     }
+//   }
+// );
