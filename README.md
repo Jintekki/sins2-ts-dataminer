@@ -19,5 +19,5 @@ Assuming your environment variables have been set, the program will run and crea
 
 # .env
 
-- `PATH_TO_SINS2_FOLDER` (set this to the path to your SINS2 folder)
+- `PATH_TO_SINS2_FOLDER` (set this to the path to your SINS2 folder. For me, this is set to "C:\Program Files (x86)\Steam\steamapps\common\Sins2")
 - `LOCALIZED_FILE` (set this to "en.localized_text" if you speak english like I do)
