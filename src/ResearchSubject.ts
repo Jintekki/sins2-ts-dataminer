@@ -105,24 +105,31 @@ for (const researchSubject in researchSubjectsJSON) {
   };
 }
 
-// Find localized text for name, description, and prerequisites
+// Find localized text for name, description
 for (const researchSubject in researchSubjectsJSON) {
-  const { name, description, prerequisites, ...otherFields }: any =
+  const { name, description, ...otherFields }: any =
     researchSubjectsJSON[researchSubject];
   const localizedName = getLocalizedText(name);
   const localizedDescription = description ? getLocalizedText(description) : "";
+  researchSubjectsJSON[researchSubject] = {
+    name: localizedName,
+    description: localizedDescription,
+    ...otherFields,
+  };
+}
+
+// Find localized text for prerequisites
+for (const researchSubject in researchSubjectsJSON) {
+  const { prerequisites, ...otherFields }: any =
+    researchSubjectsJSON[researchSubject];
   const localizedPrerequisites = prerequisites
     ? [
         ...prerequisites[0].map((prerequiste: string) => {
-          return researchSubjectsJSON[prerequiste][
-            name.replace("_research_subject_name", "")
-          ];
+          return researchSubjectsJSON[prerequiste].name;
         }),
       ]
     : [];
   researchSubjectsJSON[researchSubject] = {
-    name: localizedName,
-    description: localizedDescription,
     prerequisites: localizedPrerequisites,
     ...otherFields,
   };
