@@ -1,8 +1,8 @@
-# sins2-dataminer
+# sins2-ts-dataminer
 
 Data miner for Sins of a Solar Empire 2. User dshaver has already created a version in Java- this is a typescript version.
 
-# instructions
+# Instructions
 
 ## Prerequisites
 
@@ -19,5 +19,5 @@ Assuming your environment variables have been set, the program will run and crea
 
 # .env
 
-`PATH_TO_SINS2_FOLDER` (set this to the path to your SINS2 folder)
-`LOCALIZED_FILE` (set this to "en.localized_text" if you speak english like I do)
+- `PATH_TO_SINS2_FOLDER` (set this to the path to your SINS2 folder)
+- `LOCALIZED_FILE` (set this to "en.localized_text" if you speak english like I do)
