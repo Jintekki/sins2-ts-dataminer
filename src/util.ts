@@ -1,3 +1,4 @@
+/* util.ts: utility and common functions that are shared throughout several entitiy files */
 import fs from "fs";
 import path from "path";
 
@@ -7,6 +8,16 @@ const entitiesFolder = `${process.env.PATH_TO_SINS2_FOLDER}\\entities`;
 // Capitalizes the first letter of a word.
 function capitalize(str: string): string {
   return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+function createRawJSON(rawFiles: fs.Dirent[]) {
+  let rawJSONObject: any = {};
+  rawFiles.forEach((file: any) => {
+    rawJSONObject[`${file.name.split(".")[0]}`] = JSON.parse(
+      fs.readFileSync(`${entitiesFolder}/${file.name}`, "utf-8").toString()
+    );
+  });
+  return rawJSONObject;
 }
 
 // Expand exotics cost (finds "exotics" and "exotic_price" arrays and extracts the prices).
@@ -130,14 +141,14 @@ function getRawFiles(extension: string) {
   return rawFiles;
 }
 
-function createRawJSON(rawFiles: fs.Dirent[]) {
-  let rawJSONObject: any = {};
-  rawFiles.forEach((file: any) => {
-    rawJSONObject[`${file.name.split(".")[0]}`] = JSON.parse(
-      fs.readFileSync(`${entitiesFolder}/${file.name}`, "utf-8").toString()
-    );
-  });
-  return rawJSONObject;
+function roundTo(n: number, digits: number) {
+  if (digits === undefined) {
+    digits = 0;
+  }
+
+  var multiplicator = Math.pow(10, digits);
+  n = parseFloat((n * multiplicator).toFixed(11));
+  return Math.round(n) / multiplicator;
 }
 
 export {
@@ -147,4 +158,5 @@ export {
   expandExotics,
   getLocalizedText,
   getRawFiles,
+  roundTo,
 };

@@ -1,8 +1,12 @@
+/* index.ts: writes JSON to files */
 import fs from "fs";
-import getResearchSubjects, { getRawResearchSubjects } from "./ResearchSubject";
-import getUnits, { getRawUnits } from "./Units";
+import getResearchSubjects, {
+  getRawResearchSubjects,
+} from "./entities/ResearchSubject";
+import getUnits, { getRawUnits } from "./entities/Units";
 
-// Write units to a file.
+/* Units */
+// Wiki-ready units
 fs.writeFile("../../unitsWiki.json", getUnits(), (err) => {
   if (err) {
     console.error("Error writing file:", err);
@@ -10,8 +14,7 @@ fs.writeFile("../../unitsWiki.json", getUnits(), (err) => {
     console.log("Wiki-ready units file has been written successfully");
   }
 });
-
-// Write raw unit file.
+// Raw units
 fs.writeFile("../../unitsRaw.json", getRawUnits(), (err) => {
   if (err) {
     console.error("Error writing file:", err);
@@ -19,8 +22,8 @@ fs.writeFile("../../unitsRaw.json", getRawUnits(), (err) => {
     console.log("Raw units file has been written successfully");
   }
 });
-
-// Write research subjects to a file.
+/* Reserach Subjects */
+// Wiki-ready research subjects
 fs.writeFile(
   "../../researchSubjectsWiki.json",
   getResearchSubjects(),
@@ -32,8 +35,7 @@ fs.writeFile(
     }
   }
 );
-
-// Write raw research subject file.
+// Raw reserach subjects
 fs.writeFile(
   "../../researchSubjectsRaw.json",
   getRawResearchSubjects(),

@@ -5,7 +5,7 @@ import {
   expandExotics,
   getLocalizedText,
   getRawFiles,
-} from "./util";
+} from "../util";
 
 // Unmanipulated research subject JSON objects.
 const rawResearchSubjectsJSON = createRawJSON(getRawFiles(".research_subject"));
@@ -31,7 +31,6 @@ for (const researchSubject in researchSubjectsJSON) {
 researchSubjectsJSON = expandPrices(researchSubjectsJSON);
 
 // Expand exotics cost (finds "exotics" and "exotic_price" arrays and extracts the prices).
-// Actually, there might be a difference between "exotics" and "exotic_price". Need to verify.
 researchSubjectsJSON = expandExotics(researchSubjectsJSON);
 
 // Normalize research tier and field

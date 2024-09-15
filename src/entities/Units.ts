@@ -1,11 +1,10 @@
 import {
-  capitalize,
   createRawJSON,
   expandPrices,
   expandExotics,
-  getLocalizedText,
   getRawFiles,
-} from "./util";
+} from "../util";
+import getWeapons, { getWeaponById } from "./Weapons";
 
 // Unmanipulated research subject JSON objects.
 const rawUnitsJSON = createRawJSON(getRawFiles(".unit"));
@@ -41,6 +40,7 @@ for (const unit in unitsJSON) {
     skin_groups,
     can_join_fleet,
     action_effect_size,
+    child_meshes,
     ...relevantFields
   }: any = unitsJSON[unit];
   unitsJSON[unit] = { ...relevantFields };
@@ -54,6 +54,25 @@ unitsJSON = expandExotics(unitsJSON);
 
 // Extract durability, armor, hull, shield, and armor strength
 unitsJSON = extractHealth(unitsJSON);
+
+// Find weapon data
+for (const unit in unitsJSON) {
+  const { weapons, ...otherFields }: { weapons: any } = unitsJSON[unit];
+  let parsedWeapons: { weapons: any[] } = { weapons: [] };
+  if (weapons) {
+    {
+      console.log(weapons.weapons);
+      parsedWeapons = {
+        weapons: [
+          ...weapons.weapons.map((weapon: any) => {
+            return getWeaponById(weapon.weapon, JSON.parse(getWeapons()));
+          }),
+        ],
+      };
+    }
+  }
+  unitsJSON[unit] = { weapons: parsedWeapons, ...otherFields };
+}
 
 function extractHealth(objectsJSON: any) {
   const resultingJSON: any = { ...objectsJSON };
