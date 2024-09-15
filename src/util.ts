@@ -1,6 +1,8 @@
 import fs from "fs";
+import path from "path";
 
 const localizedTextFile = `${process.env.PATH_TO_SINS2_FOLDER}\\localized_text\\${process.env.LOCALIZED_FILE}`;
+const entitiesFolder = `${process.env.PATH_TO_SINS2_FOLDER}\\entities`;
 
 // Capitalizes the first letter of a word.
 function capitalize(str: string): string {
@@ -55,9 +57,32 @@ function getLocalizedText(searchString: string): string {
   return localizedText[`${searchString}`];
 }
 
+function getRawFiles(extension: string) {
+  const rawFiles = fs
+    .readdirSync(entitiesFolder, {
+      withFileTypes: true,
+    })
+    .filter((file: any) => {
+      return path.extname(file.name) === extension;
+    });
+  return rawFiles;
+}
+
+function createRawJSON(rawFiles: fs.Dirent[]) {
+  let rawJSONObject: any = {};
+  rawFiles.forEach((file: any) => {
+    rawJSONObject[`${file.name.split(".")[0]}`] = JSON.parse(
+      fs.readFileSync(`${entitiesFolder}/${file.name}`, "utf-8").toString()
+    );
+  });
+  return rawJSONObject;
+}
+
 export {
   capitalize,
+  createRawJSON,
   getExoticAliasConversion,
   getExoticPrice,
   getLocalizedText,
+  getRawFiles,
 };

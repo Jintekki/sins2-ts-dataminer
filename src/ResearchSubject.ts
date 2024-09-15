@@ -1,26 +1,14 @@
-import fs from "fs";
-import path from "path";
 import {
   capitalize,
+  createRawJSON,
   getExoticAliasConversion,
   getExoticPrice,
   getLocalizedText,
+  getRawFiles,
 } from "./util";
 
-const entitiesFolder = `${process.env.PATH_TO_SINS2_FOLDER}\\entities`;
-
-const rawResearchSubjectFiles = fs
-  .readdirSync(entitiesFolder, {
-    withFileTypes: true,
-  })
-  .filter((file: any) => {
-    return path.extname(file.name) === ".research_subject";
-  });
-
 // Unmanipulated research subject JSON objects.
-const rawResearchSubjectsJSON = createRawResearchSubjectsJSON(
-  rawResearchSubjectFiles
-);
+const rawResearchSubjectsJSON = createRawJSON(getRawFiles(".research_subject"));
 
 // Most of our data manipulation will be done on this object.
 const researchSubjectsJSON: any = { ...rawResearchSubjectsJSON };
@@ -173,16 +161,6 @@ function createPrettifiedResarchSubjectsJSON(researchSubjectsJSON: any) {
     };
   }
   return prettifiedResearchSubjectsJSON;
-}
-
-function createRawResearchSubjectsJSON(rawResearchSubjectFiles: fs.Dirent[]) {
-  let rawResearchSubjectsJSON: any = {};
-  rawResearchSubjectFiles.forEach((file: any) => {
-    rawResearchSubjectsJSON[`${file.name.split(".")[0]}`] = JSON.parse(
-      fs.readFileSync(`${entitiesFolder}/${file.name}`, "utf-8").toString()
-    );
-  });
-  return rawResearchSubjectsJSON;
 }
 
 export function getRawResearchSubjects() {
