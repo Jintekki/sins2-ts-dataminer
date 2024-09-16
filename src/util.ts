@@ -2,20 +2,9 @@
 import fs from "fs";
 import path from "path";
 
-type JSONValue =
-  | string
-  | number
-  | boolean
-  | null
-  | JSONValue[]
-  | object
-  | { [key: string]: JSONValue };
-
 interface JSONObject {
-  [k: string]: JSONValue;
+  [k: string]: any | null;
 }
-
-interface JSONArray extends Array<JSONValue> {}
 
 const localizedTextFile = `${process.env.PATH_TO_SINS2_FOLDER}\\localized_text\\${process.env.LOCALIZED_FILE}`;
 const entitiesFolder = `${process.env.PATH_TO_SINS2_FOLDER}\\entities`;
@@ -137,9 +126,7 @@ export {
   getExoticPrice,
   getLocalizedText,
   getFilesByExtension,
-  JSONArray,
   JSONObject,
-  JSONValue,
   entitiesFolder,
   removePropertiesFromJSONObjects,
   roundTo,

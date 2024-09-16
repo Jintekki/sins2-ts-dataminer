@@ -69,7 +69,7 @@ researchSubjects = { ...prettify(researchSubjects) };
 function expandCosts(obj: JSONObject): JSONObject {
   let result = { ...obj };
   for (const key in result) {
-    const { price, exotic_price, ...rest }: any = result[key];
+    const { price, exotic_price, ...rest }: JSONObject = result[key];
     let credits: number | undefined;
     let metal: number | undefined;
     let crystal: number | undefined;
@@ -123,9 +123,9 @@ function expandCosts(obj: JSONObject): JSONObject {
  * Be sure to have LOCALIZED_FILE="en.localized_text" set in your .env.
  */
 function localizeNameAndDescription(obj: JSONObject): JSONObject {
-  let result: any = { ...obj };
+  let result: JSONObject = { ...obj };
   for (const key in result) {
-    const { name, description, ...rest }: any = result[key];
+    const { name, description, ...rest }: JSONObject = result[key];
     const localizedName: string | undefined = checkIfExist(name)
       ? getLocalizedText(name)
       : undefined;
@@ -147,9 +147,9 @@ function localizeNameAndDescription(obj: JSONObject): JSONObject {
  * This function assumes that the names have already been localized.
  */
 function localizePrerequisites(obj: JSONObject): JSONObject {
-  let result: any = { ...obj };
+  let result: JSONObject = { ...obj };
   for (const key in result) {
-    const { prerequisites, ...otherFields }: any = result[key];
+    const { prerequisites, ...otherFields }: JSONObject = result[key];
     const localizedPrerequisites = checkIfExist(prerequisites)
       ? [
           ...prerequisites[0].map((prerequisite: string) => {
@@ -171,9 +171,9 @@ function localizePrerequisites(obj: JSONObject): JSONObject {
  * Example: {domain: 'military', tier: 2, domain: 'military_assault"} becomes {tier: Military 2, domain: Assault}.
  */
 function normalizeTierAndField(obj: JSONObject): JSONObject {
-  let result: any = { ...obj };
+  let result: JSONObject = { ...obj };
   for (const key in result) {
-    const { domain, tier, field, ...rest }: any = result[key];
+    const { domain, tier, field, ...rest }: JSONObject = result[key];
     const normalizedTier: string | undefined =
       checkIfExist(domain) && checkIfExist(tier)
         ? `${capitalize(domain)} ${tier}`
@@ -196,11 +196,17 @@ function normalizeTierAndField(obj: JSONObject): JSONObject {
  * Also replaces "Trader" with "TEC".
  */
 function prettify(obj: JSONObject): JSONObject {
-  let result: any = {};
+  let result: JSONObject = {};
   let json = { ...obj };
   for (const key in json) {
-    const { name, description, tier, field, research_time, ...rest }: any =
-      json[key];
+    const {
+      name,
+      description,
+      tier,
+      field,
+      research_time,
+      ...rest
+    }: JSONObject = json[key];
     let id: string = key;
     let race: string = capitalize(key.split("_")[0]);
     race = race === "Trader" ? "TEC" : race;
