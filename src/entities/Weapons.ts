@@ -7,7 +7,7 @@ const rawWeaponsJSON = createRawJSON(getRawFiles(".weapon"));
 let weaponsJSON: any = { ...rawWeaponsJSON };
 
 // Filter out irrelevant fields. Note: At the time of writing, I'm trying to make this as close to dshaver's as possible.
-for (const unit in weaponsJSON) {
+for (const weaponKey in weaponsJSON) {
   const {
     version,
     pitch_speed,
@@ -24,52 +24,52 @@ for (const unit in weaponsJSON) {
     muzzle_positions,
     burst_pattern,
     ...relevantFields
-  }: any = weaponsJSON[unit];
-  weaponsJSON[unit] = { ...relevantFields };
+  }: any = weaponsJSON[weaponKey];
+  weaponsJSON[weaponKey] = { ...relevantFields };
 }
 
 // Find localized text for name.
 // Be sure to have LOCALIZED_FILE="en.localized_text" set in your .env.
-for (const weapon in weaponsJSON) {
-  const { name, ...otherFields }: any = weaponsJSON[weapon];
+for (const weaponKey in weaponsJSON) {
+  const { name, ...otherFields }: any = weaponsJSON[weaponKey];
   const localizedName = getLocalizedText(name);
-  weaponsJSON[weapon] = {
+  weaponsJSON[weaponKey] = {
     name: localizedName,
     ...otherFields,
   };
 }
 
 // Get travel speed. Note: At the time of writing, I'm trying to make this as close to dshaver's as possible.
-for (const weapon in weaponsJSON) {
-  const { firing, ...otherFields }: { firing: any } = weaponsJSON[weapon];
+for (const weaponKey in weaponsJSON) {
+  const { firing, ...otherFields }: { firing: any } = weaponsJSON[weaponKey];
   let travelSpeed = 0;
   try {
     travelSpeed = firing.travel_speed;
   } catch (error) {}
 
-  weaponsJSON[weapon] = {
+  weaponsJSON[weaponKey] = {
     ...otherFields,
     travel_speed: travelSpeed,
   };
 }
 
 // Calculate DPS. Note: At the time of writing, I'm trying to make this as close to dshaver's as possible.
-for (const weapon in weaponsJSON) {
-  const { ...fields }: { firing: any } = weaponsJSON[weapon];
+for (const weaponKey in weaponsJSON) {
+  const { ...fields }: { firing: any } = weaponsJSON[weaponKey];
   let dps: number = 0;
-  if (weaponsJSON[weapon].weapon_type === "normal") {
+  if (weaponsJSON[weaponKey].weapon_type === "normal") {
     dps =
-      ((60 / weaponsJSON[weapon].cooldown_duration) *
-        weaponsJSON[weapon].damage) /
+      ((60 / weaponsJSON[weaponKey].cooldown_duration) *
+        weaponsJSON[weaponKey].damage) /
       60;
-  } else if (weaponsJSON[weapon].weapon_type === "planet_bombing") {
+  } else if (weaponsJSON[weaponKey].weapon_type === "planet_bombing") {
     dps =
-      ((60 / weaponsJSON[weapon].cooldown_duration) *
-        weaponsJSON[weapon].bombing_damage) /
+      ((60 / weaponsJSON[weaponKey].cooldown_duration) *
+        weaponsJSON[weaponKey].bombing_damage) /
       60;
   }
   dps = roundTo(dps, 1);
-  weaponsJSON[weapon] = {
+  weaponsJSON[weaponKey] = {
     ...fields,
     dps: dps,
   };
@@ -81,7 +81,7 @@ const prettifiedWeaponsJSON: any =
 
 function createPrettifiedResarchSubjectsJSON(weaponsJSON: any) {
   let prettifiedWeaponsJSON: any = {};
-  for (const weapon in weaponsJSON) {
+  for (const weaponKey in weaponsJSON) {
     const {
       name,
       weapon_type,
@@ -91,8 +91,8 @@ function createPrettifiedResarchSubjectsJSON(weaponsJSON: any) {
       travel_speed,
       range,
       ...otherFields
-    }: any = weaponsJSON[weapon];
-    const id: string = weapon;
+    }: any = weaponsJSON[weaponKey];
+    const id: string = weaponKey;
     const key: string = name;
     prettifiedWeaponsJSON[key] = {
       name: name,

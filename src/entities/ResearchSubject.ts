@@ -1,8 +1,7 @@
 import {
   capitalize,
   createRawJSON,
-  expandPrices,
-  expandExotics,
+  getAllCost,
   getLocalizedText,
   getRawFiles,
 } from "../util";
@@ -14,7 +13,7 @@ const rawResearchSubjectsJSON = createRawJSON(getRawFiles(".research_subject"));
 let researchSubjectsJSON: any = { ...rawResearchSubjectsJSON };
 
 // Filter out irrelevant fields.
-for (const researchSubject in researchSubjectsJSON) {
+for (const researchSubjectKey in researchSubjectsJSON) {
   const {
     version,
     field_coord,
@@ -22,25 +21,23 @@ for (const researchSubject in researchSubjectsJSON) {
     hud_icon,
     tooltip_picture,
     extra_text_filter_strings,
+    tooltip_icon,
     ...relevantFields
-  }: any = researchSubjectsJSON[researchSubject];
-  researchSubjectsJSON[researchSubject] = { ...relevantFields };
+  }: any = researchSubjectsJSON[researchSubjectKey];
+  researchSubjectsJSON[researchSubjectKey] = { ...relevantFields };
 }
 
-// Expand credit, metal, and crystal cost (replaces "price" field with credits, metal, and crystal fields).
-researchSubjectsJSON = expandPrices(researchSubjectsJSON);
-
-// Expand exotics cost (finds "exotics" and "exotic_price" arrays and extracts the prices).
-researchSubjectsJSON = expandExotics(researchSubjectsJSON);
+// Expand credit, metal, and crystal, and individual exotics cost (replaces "price" and "exotic_price")
+researchSubjectsJSON = { ...getAllCost(researchSubjectsJSON) };
 
 // Normalize research tier and field
 // Example: {domain: 'military', tier: 2, domain: 'military_assault"} becomes {tier: Military 2, domain: Assault}.
-for (const researchSubject in researchSubjectsJSON) {
+for (const researchSubjectKey in researchSubjectsJSON) {
   const { domain, tier, field, ...otherFields }: any =
-    researchSubjectsJSON[researchSubject];
+    researchSubjectsJSON[researchSubjectKey];
   const normalizedTier = `${capitalize(domain)} ${tier}`;
   const normalizedField = capitalize(field.split("_")[1]);
-  researchSubjectsJSON[researchSubject] = {
+  researchSubjectsJSON[researchSubjectKey] = {
     ...otherFields,
     tier: normalizedTier,
     field: normalizedField,
@@ -49,12 +46,12 @@ for (const researchSubject in researchSubjectsJSON) {
 
 // Find localized text for name and description.
 // Be sure to have LOCALIZED_FILE="en.localized_text" set in your .env.
-for (const researchSubject in researchSubjectsJSON) {
+for (const researchSubjectKey in researchSubjectsJSON) {
   const { name, description, ...otherFields }: any =
-    researchSubjectsJSON[researchSubject];
+    researchSubjectsJSON[researchSubjectKey];
   const localizedName = getLocalizedText(name);
   const localizedDescription = description ? getLocalizedText(description) : "";
-  researchSubjectsJSON[researchSubject] = {
+  researchSubjectsJSON[researchSubjectKey] = {
     name: localizedName,
     description: localizedDescription,
     ...otherFields,
@@ -62,9 +59,9 @@ for (const researchSubject in researchSubjectsJSON) {
 }
 
 // Find localized text for prerequisites. This section assumes that the names have already been localized.
-for (const researchSubject in researchSubjectsJSON) {
+for (const researchSubjectKey in researchSubjectsJSON) {
   const { prerequisites, ...otherFields }: any =
-    researchSubjectsJSON[researchSubject];
+    researchSubjectsJSON[researchSubjectKey];
   const localizedPrerequisites = prerequisites
     ? [
         ...prerequisites[0].map((prerequiste: string) => {
@@ -72,7 +69,7 @@ for (const researchSubject in researchSubjectsJSON) {
         }),
       ]
     : [];
-  researchSubjectsJSON[researchSubject] = {
+  researchSubjectsJSON[researchSubjectKey] = {
     prerequisites: localizedPrerequisites,
     ...otherFields,
   };
@@ -85,7 +82,7 @@ const prettifiedResearchSubjectsJSON: any =
 
 function createPrettifiedResarchSubjectsJSON(researchSubjectsJSON: any) {
   let prettifiedResearchSubjectsJSON: any = {};
-  for (const researchSubject in researchSubjectsJSON) {
+  for (const researchSubjectKey in researchSubjectsJSON) {
     const {
       name,
       description,
@@ -93,9 +90,9 @@ function createPrettifiedResarchSubjectsJSON(researchSubjectsJSON: any) {
       field,
       research_time,
       ...otherFields
-    }: any = researchSubjectsJSON[researchSubject];
-    const id: string = researchSubject;
-    let race: string = capitalize(researchSubject.split("_")[0]);
+    }: any = researchSubjectsJSON[researchSubjectKey];
+    const id: string = researchSubjectKey;
+    let race: string = capitalize(researchSubjectKey.split("_")[0]);
     race = race === "Trader" ? "TEC" : race;
     const key: string = `${race} ${name}`;
     prettifiedResearchSubjectsJSON[key] = {

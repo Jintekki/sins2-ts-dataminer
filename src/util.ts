@@ -10,6 +10,14 @@ function capitalize(str: string): string {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
+function checkIfPropertyExist(property: any): boolean {
+  try {
+    return property !== undefined ? true : false;
+  } catch (error) {
+    return false;
+  }
+}
+
 function createRawJSON(rawFiles: fs.Dirent[]) {
   let rawJSONObject: any = {};
   rawFiles.forEach((file: any) => {
@@ -20,66 +28,64 @@ function createRawJSON(rawFiles: fs.Dirent[]) {
   return rawJSONObject;
 }
 
-// Expand exotics cost (finds "exotics" and "exotic_price" arrays and extracts the prices).
-function expandExotics(exoticPricedObjectsJSON: any) {
-  const resultingJSON: any = { ...exoticPricedObjectsJSON };
-  for (const exoticPricedObject in resultingJSON) {
-    const { exotic_price, ...otherFields }: any =
-      resultingJSON[exoticPricedObject];
-    if (exotic_price?.length) {
-      let andvar: number = 0;
-      let tauranite: number = 0;
-      let indurium: number = 0;
-      let kalanide: number = 0;
-      let quarnium: number = 0;
-      andvar = getExoticPrice(getExoticAliasConversion("andvar"), exotic_price);
-      tauranite = getExoticPrice(
-        getExoticAliasConversion("tauranite"),
-        exotic_price
-      );
-      indurium = getExoticPrice(
-        getExoticAliasConversion("indurium"),
-        exotic_price
-      );
-      kalanide = getExoticPrice(
-        getExoticAliasConversion("kalanide"),
-        exotic_price
-      );
-      quarnium = getExoticPrice(
-        getExoticAliasConversion("quarnium"),
-        exotic_price
-      );
-      resultingJSON[exoticPricedObject] = {
-        ...otherFields,
-        andvar: andvar,
-        tauranite: tauranite,
-        indurium: indurium,
-        kalanide: kalanide,
-        quarnium: quarnium,
-      };
-    }
-  }
-  return resultingJSON;
-}
+/* Replaces "price" and "exotic_price" with individual price properties, along with build time and supply cost */
+function getAllCost(pricedObjectsJSON: any) {
+  let resultingJSON: any = { ...pricedObjectsJSON };
+  for (const pricedObjectKey in resultingJSON) {
+    let props: any = { ...resultingJSON[pricedObjectKey] };
+    let credits: number | undefined;
+    let metal: number | undefined;
+    let crystal: number | undefined;
+    let andvar: number | undefined;
+    let tauranite: number | undefined;
+    let indurium: number | undefined;
+    let kalanide: number | undefined;
+    let quarnium: number | undefined;
+    let buildTime: number | undefined;
+    let supplyCost: number | undefined;
 
-// Expand credit, metal, and crystal cost (replaces "price" field with credits, metal, and crystal fields).
-function expandPrices(pricedObjectsJSON: any) {
-  const resultingJSON: any = { ...pricedObjectsJSON };
-  for (const pricedObject in resultingJSON) {
-    const { price, ...otherFields }: any = resultingJSON[pricedObject];
-    if (price) {
-      const credits: number = resultingJSON[pricedObject].price.credits;
-      const metal: number = resultingJSON[pricedObject].price.metal;
-      const crystal: number = resultingJSON[pricedObject].price.crystal;
-      resultingJSON[pricedObject] = {
-        ...otherFields,
-        credits: credits,
-        metal: metal,
-        crystal: crystal,
-      };
+    const { build, ...rest }: { build: object | undefined } = props;
+    if (checkIfPropertyExist(props.build)) {
+      props = { ...build };
+      const {
+        build_time,
+        supply_cost,
+      }: { build_time: number | undefined; supply_cost: number | undefined } =
+        props;
+      buildTime = checkIfPropertyExist(build_time) ? build_time : undefined;
+      supplyCost = checkIfPropertyExist(supply_cost) ? supply_cost : undefined;
+    } else {
+      props = { ...rest };
     }
+    const { price, exotic_price, ...remainingFields }: any = props;
+    if (checkIfPropertyExist(price)) {
+      credits = checkIfPropertyExist(price.credits) ? price.credits : undefined;
+      metal = checkIfPropertyExist(price.metal) ? price.metal : undefined;
+      crystal = checkIfPropertyExist(price.crystal) ? price.crystal : undefined;
+    }
+    if (checkIfPropertyExist(exotic_price)) {
+      andvar = getExoticPrice("andvar", exotic_price);
+      tauranite = getExoticPrice("tauranite", exotic_price);
+      indurium = getExoticPrice("indurium", exotic_price);
+      kalanide = getExoticPrice("kalanide", exotic_price);
+      quarnium = getExoticPrice("quarnium", exotic_price);
+    }
+    props = {
+      ...remainingFields,
+      buildTime,
+      supplyCost,
+      credits,
+      metal,
+      crystal,
+      andvar,
+      tauranite,
+      indurium,
+      kalanide,
+      quarnium,
+    };
+    resultingJSON[pricedObjectKey] = { ...props };
   }
-  return resultingJSON;
+  return { ...resultingJSON };
 }
 
 // Exotic resources go by different names in the JSON.
@@ -153,9 +159,9 @@ function roundTo(n: number, digits: number) {
 
 export {
   capitalize,
+  checkIfPropertyExist,
   createRawJSON,
-  expandPrices,
-  expandExotics,
+  getAllCost,
   getLocalizedText,
   getRawFiles,
   roundTo,
