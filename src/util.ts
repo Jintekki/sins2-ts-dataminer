@@ -43,7 +43,6 @@ function getAllCost(pricedObjectsJSON: any) {
     let quarnium: number | undefined;
     let buildTime: number | undefined;
     let supplyCost: number | undefined;
-
     const { build, ...rest }: { build: object | undefined } = props;
     if (checkIfPropertyExist(props.build)) {
       props = { ...build };
@@ -64,11 +63,23 @@ function getAllCost(pricedObjectsJSON: any) {
       crystal = checkIfPropertyExist(price.crystal) ? price.crystal : undefined;
     }
     if (checkIfPropertyExist(exotic_price)) {
-      andvar = getExoticPrice("andvar", exotic_price);
-      tauranite = getExoticPrice("tauranite", exotic_price);
-      indurium = getExoticPrice("indurium", exotic_price);
-      kalanide = getExoticPrice("kalanide", exotic_price);
-      quarnium = getExoticPrice("quarnium", exotic_price);
+      andvar = getExoticPrice(getExoticAliasConversion("andvar"), exotic_price);
+      tauranite = getExoticPrice(
+        getExoticAliasConversion("tauranite"),
+        exotic_price
+      );
+      indurium = getExoticPrice(
+        getExoticAliasConversion("indurium"),
+        exotic_price
+      );
+      kalanide = getExoticPrice(
+        getExoticAliasConversion("kalanide"),
+        exotic_price
+      );
+      quarnium = getExoticPrice(
+        getExoticAliasConversion("quarnium"),
+        exotic_price
+      );
     }
     props = {
       ...remainingFields,
@@ -116,6 +127,7 @@ function getExoticAliasConversion(exoticAlias: string): string {
 }
 
 // Example: getExoticPrice(andvar, object)
+// Used in get
 function getExoticPrice(exoticAlias: string, exoticsArray: any[]): number {
   let price: number = 0;
   exoticsArray.forEach(
