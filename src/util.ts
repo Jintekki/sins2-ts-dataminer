@@ -56,7 +56,13 @@ function getAllCost(pricedObjectsJSON: any) {
     } else {
       props = { ...rest };
     }
-    const { price, exotic_price, ...remainingFields }: any = props;
+    const {
+      price,
+      exotic_price,
+      build_kind,
+      build_group_id,
+      ...remainingFields
+    }: any = props;
     if (checkIfPropertyExist(price)) {
       credits = checkIfPropertyExist(price.credits) ? price.credits : undefined;
       metal = checkIfPropertyExist(price.metal) ? price.metal : undefined;
@@ -83,8 +89,8 @@ function getAllCost(pricedObjectsJSON: any) {
     }
     props = {
       ...remainingFields,
-      buildTime,
-      supplyCost,
+      build_time: buildTime,
+      supply_cost: supplyCost,
       credits,
       metal,
       crystal,
@@ -159,12 +165,12 @@ function getRawFiles(extension: string) {
   return rawFiles;
 }
 
+// Helper function for more accurate rounding
 function roundTo(n: number, digits: number) {
   if (digits === undefined) {
     digits = 0;
   }
-
-  var multiplicator = Math.pow(10, digits);
+  let multiplicator = Math.pow(10, digits);
   n = parseFloat((n * multiplicator).toFixed(11));
   return Math.round(n) / multiplicator;
 }
