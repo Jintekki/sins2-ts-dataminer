@@ -1,5 +1,9 @@
+// HEALTH EXTRACTION NOT WORKING
+// SOME WEAPONS NOT BEING FOUND
+
 import {
   createRawJSON,
+  checkIfPropertyExist,
   getAllCost,
   getLocalizedText,
   getRawFiles,
@@ -49,15 +53,49 @@ for (const unitKey in unitsJSON) {
 unitsJSON = getAllCost(unitsJSON);
 
 // Extract durability, armor, hull, shield, and armor strength
-unitsJSON = extractHealth(unitsJSON);
+for (const unitKey in unitsJSON) {
+  let durability: number | undefined;
+  let armor: number | undefined;
+  let hull: number | undefined;
+  let shield: number | undefined;
+  let armor_strength: number | undefined;
+  const { health, ...otherFields }: any = unitsJSON[unitKey];
+  if (checkIfPropertyExist(health)) {
+    durability = checkIfPropertyExist(health["durability"])
+      ? health["durability"]
+      : undefined;
+    armor = checkIfPropertyExist(health.levels[0].max_armor_points)
+      ? health.levels[0].max_armor_points
+      : undefined;
+    hull = checkIfPropertyExist(health.levels[0].max_hull_points)
+      ? health.levels[0].max_hull_points
+      : undefined;
+    shield = checkIfPropertyExist(health.levels[0].max_shield_points)
+      ? health.levels[0].max_shield_points
+      : undefined;
+    armor_strength = checkIfPropertyExist(health.levels[0].armor_strength)
+      ? health.levels[0].armor_strength
+      : undefined;
+  }
+  unitsJSON[unitKey] = {
+    ...otherFields,
+    durability,
+    armor,
+    hull,
+    shield,
+    armor_strength,
+  };
+}
 
 // Find localized text for name and description.
 // Be sure to have LOCALIZED_FILE="en.localized_text" set in your .env.
 for (const unitKey in unitsJSON) {
   const { name, ...otherFields }: any = unitsJSON[unitKey];
   const localizedName = getLocalizedText(`${unitKey}_name`);
+  const localizedDescription = getLocalizedText(`${unitKey}_description`);
   unitsJSON[unitKey] = {
     name: localizedName,
+    description: localizedDescription,
     ...otherFields,
   };
 }
@@ -93,31 +131,6 @@ for (const unitKey in unitsJSON) {
   unitsJSON[unitKey] = { ...otherFields, weapons: parsedWeapons };
 }
 
-function extractHealth(objectsJSON: any) {
-  const resultingJSON: any = { ...objectsJSON };
-  for (const objectKey in resultingJSON) {
-    const { health, ...otherFields }: any = resultingJSON[objectKey];
-    if (health) {
-      const durability = resultingJSON[objectKey].health.durability;
-      const armor = resultingJSON[objectKey].health.levels[0].max_armor_points;
-      const hull = resultingJSON[objectKey].health.levels[0].max_hull_points;
-      const shield =
-        resultingJSON[objectKey].health.levels[0].max_shield_points;
-      const armor_strength =
-        resultingJSON[objectKey].health.levels[0].armor_strength;
-      resultingJSON[objectKey] = {
-        ...otherFields,
-        durability: durability,
-        hull: hull,
-        armor: armor,
-        shield: shield,
-        armor_strength: armor_strength,
-      };
-    }
-  }
-  return resultingJSON;
-}
-
 export function getRawUnits() {
   return JSON.stringify(rawUnitsJSON, null, 2);
 }
@@ -150,7 +163,7 @@ export function getShipUnits() {
         unitKey.includes("titan")) &&
       !unitKey.includes("structure")
     ) {
-      resultingJSON[unitKey] = unitsJSON[unitKey];
+      resultingJSON[unitKey] = { ...unitsJSON[unitKey] };
     }
   }
 

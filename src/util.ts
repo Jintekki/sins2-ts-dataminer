@@ -45,16 +45,10 @@ function getAllCost(pricedObjectsJSON: any) {
     let supplyCost: number | undefined;
     const { build, ...rest }: { build: object | undefined } = props;
     if (checkIfPropertyExist(props.build)) {
-      props = { ...build };
-      const {
-        build_time,
-        supply_cost,
-      }: { build_time: number | undefined; supply_cost: number | undefined } =
-        props;
+      const { build_time, supply_cost }: any = build;
       buildTime = checkIfPropertyExist(build_time) ? build_time : undefined;
       supplyCost = checkIfPropertyExist(supply_cost) ? supply_cost : undefined;
-    } else {
-      props = { ...rest };
+      props = { ...build, ...rest };
     }
     const {
       price,
