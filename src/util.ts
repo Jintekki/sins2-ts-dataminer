@@ -2,6 +2,21 @@
 import fs from "fs";
 import path from "path";
 
+type JSONValue =
+  | string
+  | number
+  | boolean
+  | null
+  | JSONValue[]
+  | object
+  | { [key: string]: JSONValue };
+
+interface JSONObject {
+  [k: string]: JSONValue;
+}
+
+interface JSONArray extends Array<JSONValue> {}
+
 const localizedTextFile = `${process.env.PATH_TO_SINS2_FOLDER}\\localized_text\\${process.env.LOCALIZED_FILE}`;
 const entitiesFolder = `${process.env.PATH_TO_SINS2_FOLDER}\\entities`;
 
@@ -10,7 +25,7 @@ function capitalize(str: string): string {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
-function checkIfPropertyExist(property: any): boolean {
+function checkIfExist(property: any): boolean {
   try {
     return property !== undefined ? true : false;
   } catch (error) {
@@ -18,85 +33,14 @@ function checkIfPropertyExist(property: any): boolean {
   }
 }
 
-function createRawJSON(rawFiles: fs.Dirent[]) {
-  let rawJSONObject: any = {};
-  rawFiles.forEach((file: any) => {
-    rawJSONObject[`${file.name.split(".")[0]}`] = JSON.parse(
+function createJSONFromFiles(files: fs.Dirent[]) {
+  let result: any = {};
+  files.forEach((file: any) => {
+    result[`${file.name.split(".")[0]}`] = JSON.parse(
       fs.readFileSync(`${entitiesFolder}/${file.name}`, "utf-8").toString()
     );
   });
-  return rawJSONObject;
-}
-
-/* Replaces "price" and "exotic_price" with individual price properties, along with build time and supply cost */
-function getAllCost(pricedObjectsJSON: any) {
-  let resultingJSON: any = { ...pricedObjectsJSON };
-  for (const pricedObjectKey in resultingJSON) {
-    let props: any = { ...resultingJSON[pricedObjectKey] };
-    let credits: number | undefined;
-    let metal: number | undefined;
-    let crystal: number | undefined;
-    let andvar: number | undefined;
-    let tauranite: number | undefined;
-    let indurium: number | undefined;
-    let kalanide: number | undefined;
-    let quarnium: number | undefined;
-    let buildTime: number | undefined;
-    let supplyCost: number | undefined;
-    const { build, ...rest }: { build: object | undefined } = props;
-    if (checkIfPropertyExist(props.build)) {
-      const { build_time, supply_cost }: any = build;
-      buildTime = checkIfPropertyExist(build_time) ? build_time : undefined;
-      supplyCost = checkIfPropertyExist(supply_cost) ? supply_cost : undefined;
-      props = { ...build, ...rest };
-    }
-    const {
-      price,
-      exotic_price,
-      build_kind,
-      build_group_id,
-      ...remainingFields
-    }: any = props;
-    if (checkIfPropertyExist(price)) {
-      credits = checkIfPropertyExist(price.credits) ? price.credits : undefined;
-      metal = checkIfPropertyExist(price.metal) ? price.metal : undefined;
-      crystal = checkIfPropertyExist(price.crystal) ? price.crystal : undefined;
-    }
-    if (checkIfPropertyExist(exotic_price)) {
-      andvar = getExoticPrice(getExoticAliasConversion("andvar"), exotic_price);
-      tauranite = getExoticPrice(
-        getExoticAliasConversion("tauranite"),
-        exotic_price
-      );
-      indurium = getExoticPrice(
-        getExoticAliasConversion("indurium"),
-        exotic_price
-      );
-      kalanide = getExoticPrice(
-        getExoticAliasConversion("kalanide"),
-        exotic_price
-      );
-      quarnium = getExoticPrice(
-        getExoticAliasConversion("quarnium"),
-        exotic_price
-      );
-    }
-    props = {
-      ...remainingFields,
-      build_time: buildTime,
-      supply_cost: supplyCost,
-      credits,
-      metal,
-      crystal,
-      andvar,
-      tauranite,
-      indurium,
-      kalanide,
-      quarnium,
-    };
-    resultingJSON[pricedObjectKey] = { ...props };
-  }
-  return { ...resultingJSON };
+  return result;
 }
 
 // Exotic resources go by different names in the JSON.
@@ -128,12 +72,15 @@ function getExoticAliasConversion(exoticAlias: string): string {
 
 // Example: getExoticPrice(andvar, object)
 // Used in get
-function getExoticPrice(exoticAlias: string, exoticsArray: any[]): number {
-  let price: number = 0;
+function getExoticPrice(
+  exoticAlias: string,
+  exoticsArray: any[]
+): number | undefined {
+  let price: number | undefined;
   exoticsArray.forEach(
     ({ exotic_type, count }: { exotic_type: string; count: number }) => {
       if (exotic_type === exoticAlias) {
-        price = count;
+        price = count ? count : undefined;
       }
     }
   );
@@ -148,15 +95,28 @@ function getLocalizedText(searchString: string): string {
   return localizedText[`${searchString}`];
 }
 
-function getRawFiles(extension: string) {
-  const rawFiles = fs
+function getFilesByExtension(extension: string) {
+  const files = fs
     .readdirSync(entitiesFolder, {
       withFileTypes: true,
     })
-    .filter((file: any) => {
+    .filter((file: fs.Dirent) => {
       return path.extname(file.name) === extension;
     });
-  return rawFiles;
+  return files;
+}
+
+function removePropertiesFromJSONObjects(
+  props: Array<string>,
+  obj: JSONObject
+): JSONObject {
+  let result: any = { ...obj };
+  for (const key in result) {
+    props.forEach((prop: string) => {
+      delete result[key][prop];
+    });
+  }
+  return result;
 }
 
 // Helper function for more accurate rounding
@@ -171,10 +131,16 @@ function roundTo(n: number, digits: number) {
 
 export {
   capitalize,
-  checkIfPropertyExist,
-  createRawJSON,
-  getAllCost,
+  checkIfExist,
+  createJSONFromFiles,
+  getExoticAliasConversion,
+  getExoticPrice,
   getLocalizedText,
-  getRawFiles,
+  getFilesByExtension,
+  JSONArray,
+  JSONObject,
+  JSONValue,
+  entitiesFolder,
+  removePropertiesFromJSONObjects,
   roundTo,
 };
