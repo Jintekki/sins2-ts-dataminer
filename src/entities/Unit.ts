@@ -14,7 +14,7 @@ import fs from "fs";
 import { weapons as importedWeapons, getWeaponById } from "./Weapon";
 
 /* GET UNMANIPULATED ("RAW") UNIT JSON OBJECTS */
-const unitFiles: fs.Dirent[] = getFilesByExtension(".research_subject");
+const unitFiles: fs.Dirent[] = getFilesByExtension(".unit");
 const rawUnits: JSONObject = {
   ...createJSONFromFiles(unitFiles),
 };
@@ -68,6 +68,7 @@ shipUnits = { ...expandCosts(shipUnits) };
 shipUnits = { ...extractHealth(shipUnits) };
 
 // Find weapon data
+shipUnits = { ...findWeapons(shipUnits) };
 
 /* FUNCTIONS */
 /**

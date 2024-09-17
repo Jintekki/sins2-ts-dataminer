@@ -87,10 +87,12 @@ function calculateDPS(obj: JSONObject): JSONObject {
 function getTravelSpeed(obj: JSONObject): JSONObject {
   const result: JSONObject = { ...obj };
   for (const key in result) {
+    let travelSpeed: number | undefined;
     const { firing, ...rest }: { firing: any } = weapons[key];
-    let travelSpeed = checkIfExist(firing.travel_speed)
-      ? firing.travel_speed
-      : 0;
+    if (checkIfExist(firing)) {
+      travelSpeed = checkIfExist(firing.travel_speed) ? firing.travel_speed : 0;
+    }
+
     result[key] = {
       ...rest,
       travel_speed: travelSpeed,
