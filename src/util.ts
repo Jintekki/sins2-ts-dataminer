@@ -2,9 +2,11 @@
 import fs from "fs";
 import path from "path";
 
-interface JSONObject {
+interface GenericObject extends Object {
   [k: string]: any | null;
 }
+
+interface JSONObject extends GenericObject {}
 
 const localizedTextFile = `${process.env.PATH_TO_SINS2_FOLDER}\\localized_text\\${process.env.LOCALIZED_FILE}`;
 const entitiesFolder = `${process.env.PATH_TO_SINS2_FOLDER}\\entities`;
@@ -95,17 +97,25 @@ function getFilesByExtension(extension: string) {
   return files;
 }
 
-function removePropertiesFromJSONObjects(
-  props: Array<string>,
-  obj: JSONObject
-): JSONObject {
-  let result: any = { ...obj };
-  for (const key in result) {
-    props.forEach((prop: string) => {
-      delete result[key][prop];
-    });
-  }
+function removePropertiesFromObject(
+  obj: GenericObject,
+  props: Array<string>
+): GenericObject {
+  let result: GenericObject = { ...obj };
+  props.forEach((prop: string) => {
+    delete result[prop];
+  });
+
   return result;
+}
+
+function objectMap<Value, Function>(
+  obj: { [key: string]: Value },
+  fn: (value: Value, key: string, index: number) => Function
+) {
+  return Object.fromEntries(
+    Object.entries(obj).map(([k, v], i) => [k, fn(v, k, i)])
+  );
 }
 
 // Helper function for more accurate rounding
@@ -126,8 +136,10 @@ export {
   getExoticPrice,
   getLocalizedText,
   getFilesByExtension,
+  GenericObject,
   JSONObject,
   entitiesFolder,
-  removePropertiesFromJSONObjects,
+  objectMap,
+  removePropertiesFromObject,
   roundTo,
 };

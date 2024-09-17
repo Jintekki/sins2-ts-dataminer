@@ -2,203 +2,192 @@ import {
   capitalize,
   checkIfExist,
   createJSONFromFiles,
+  GenericObject,
   getLocalizedText,
   getExoticAliasConversion,
   getExoticPrice,
   getFilesByExtension,
   JSONObject,
-  removePropertiesFromJSONObjects,
+  objectMap,
+  removePropertiesFromObject,
 } from "../util";
 import fs from "fs";
+import { flow } from "fp-ts/function";
+
+interface ResearchSubjectObject extends GenericObject {}
+interface JSONResearchSubjects extends JSONObject {
+  [key: string]: ResearchSubjectObject;
+}
 
 /* GET UNMANIPULATED ("RAW") RESEARCH SUBJECT JSON OBJECTS */
 const researchSubjectFiles: fs.Dirent[] =
   getFilesByExtension(".research_subject");
-const rawResearchSubjects: JSONObject = {
+const rawResearchSubjects: JSONResearchSubjects = {
   ...createJSONFromFiles(researchSubjectFiles),
 };
 
-/* MANIPULATIONS */
-let researchSubjects: JSONObject = { ...rawResearchSubjects };
-// Filter out irrelevant properties
-researchSubjects = {
-  ...removePropertiesFromJSONObjects(
-    [
-      "version",
-      "field_coord",
-      "name_uppercase",
-      "hud_icon",
-      "tooltip_picture",
-      "extra_text_filter_strings",
-      "toolip_icon",
-    ],
-    rawResearchSubjects
+/* MANIPULATIONS AND GET FINAL RESEARCH SUBJECT JSON OBJECTS */
+const manipulations = flow(
+  removePropertiesFromObject,
+  expandCosts,
+  normalizeTierAndField,
+  localizeNameAndDescription,
+  localizePrerequisites
+);
+
+const manipulatedResearchSubjects: JSONResearchSubjects = {
+  ...objectMap(
+    rawResearchSubjects,
+    (researchSubject: ResearchSubjectObject): ResearchSubjectObject => {
+      return manipulations(researchSubject, [
+        "version",
+        "field_coord",
+        "name_uppercase",
+        "hud_icon",
+        "tooltip_picture",
+        "extra_text_filter_strings",
+        "toolip_icon",
+      ]);
+    }
   ),
 };
 
-// Expand credit, metal, and crystal, and individual exotics cost (replaces "price" and "exotic_price")
-researchSubjects = {
-  ...expandCosts(researchSubjects),
-};
-
-// Normalize research tier and field
-// Example: {domain: 'military', tier: 2, domain: 'military_assault"} becomes {tier: Military 2, domain: Assault}.
-researchSubjects = {
-  ...normalizeTierAndField(researchSubjects),
-};
-
-// Find localized text for name and description.
-researchSubjects = {
-  ...localizeNameAndDescription(researchSubjects),
-};
-
-// Find localized text for prerequisites. This manipulation assumes that the names have already been localized.
-researchSubjects = {
-  ...localizePrerequisites(researchSubjects),
-};
-
-// Final adjustments for readability. Adds race field, more human readable key, id, and re-orders fields.
-researchSubjects = { ...prettify(researchSubjects) };
+const researchSubjects = { ...prettify(manipulatedResearchSubjects) };
 
 /* FUNCTIONS */
 /**
- * Returns a JSON Object with the price and exotic_price properties removed.
- * Uses checkIfExist, getExoticPrice and getExoticAliasConversion from util.ts
+ * Returns a JSON Object with the price and exotic_price properties removed. Included in our flow.
  * The properties are replaced by credits, metal, crystal, andvar, tauranite, indurium, kalanide, and quarnium properties.
+ * Uses getExoticPrice and getExoticAliasConversion from util.ts
  */
-function expandCosts(obj: JSONObject): JSONObject {
+function expandCosts(obj: ResearchSubjectObject): ResearchSubjectObject {
   let result = { ...obj };
-  for (const key in result) {
-    const { price, exotic_price, ...rest }: JSONObject = result[key];
-    let credits: number | undefined;
-    let metal: number | undefined;
-    let crystal: number | undefined;
-    let andvar: number | undefined;
-    let tauranite: number | undefined;
-    let indurium: number | undefined;
-    let kalanide: number | undefined;
-    let quarnium: number | undefined;
-    if (checkIfExist(price)) {
-      credits = checkIfExist(price.credits) ? price.credits : undefined;
-      metal = checkIfExist(price.metal) ? price.metal : undefined;
-      crystal = checkIfExist(price.crystal) ? price.crystal : undefined;
-    }
-    if (checkIfExist(exotic_price)) {
-      andvar = getExoticPrice(getExoticAliasConversion("andvar"), exotic_price);
-      tauranite = getExoticPrice(
-        getExoticAliasConversion("tauranite"),
-        exotic_price
-      );
-      indurium = getExoticPrice(
-        getExoticAliasConversion("indurium"),
-        exotic_price
-      );
-      kalanide = getExoticPrice(
-        getExoticAliasConversion("kalanide"),
-        exotic_price
-      );
-      quarnium = getExoticPrice(
-        getExoticAliasConversion("quarnium"),
-        exotic_price
-      );
-    }
-    result[key] = {
-      ...rest,
-      credits,
-      metal,
-      crystal,
-      andvar,
-      tauranite,
-      indurium,
-      kalanide,
-      quarnium,
-    };
+  const { price, exotic_price, ...rest }: ResearchSubjectObject = result;
+  let credits: number | undefined;
+  let metal: number | undefined;
+  let crystal: number | undefined;
+  let andvar: number | undefined;
+  let tauranite: number | undefined;
+  let indurium: number | undefined;
+  let kalanide: number | undefined;
+  let quarnium: number | undefined;
+  if (price) {
+    credits = price.credits ? price.credits : undefined;
+    metal = price.metal ? price.metal : undefined;
+    crystal = price.crystal ? price.crystal : undefined;
   }
+  if (exotic_price) {
+    andvar = getExoticPrice(getExoticAliasConversion("andvar"), exotic_price);
+    tauranite = getExoticPrice(
+      getExoticAliasConversion("tauranite"),
+      exotic_price
+    );
+    indurium = getExoticPrice(
+      getExoticAliasConversion("indurium"),
+      exotic_price
+    );
+    kalanide = getExoticPrice(
+      getExoticAliasConversion("kalanide"),
+      exotic_price
+    );
+    quarnium = getExoticPrice(
+      getExoticAliasConversion("quarnium"),
+      exotic_price
+    );
+  }
+  result = {
+    ...rest,
+    credits,
+    metal,
+    crystal,
+    andvar,
+    tauranite,
+    indurium,
+    kalanide,
+    quarnium,
+  };
   return result;
 }
 
 /**
- * Find localized text for name and description.
- * Uses checkIfExist, getLocalizedText and getLocalizedDescription from util.ts
+ * Find localized text for name and description. Included in our flow.
+ * Uses getLocalizedText from util.ts
  * Be sure to have LOCALIZED_FILE="en.localized_text" set in your .env.
  */
-function localizeNameAndDescription(obj: JSONObject): JSONObject {
-  let result: JSONObject = { ...obj };
-  for (const key in result) {
-    const { name, description, ...rest }: JSONObject = result[key];
-    const localizedName: string | undefined = checkIfExist(name)
-      ? getLocalizedText(name)
-      : undefined;
-    const localizedDescription: string | undefined = checkIfExist(description)
-      ? getLocalizedText(description)
-      : undefined;
-    result[key] = {
-      ...rest,
-      name: localizedName,
-      description: localizedDescription,
-    };
-  }
+function localizeNameAndDescription(
+  obj: ResearchSubjectObject
+): ResearchSubjectObject {
+  let result: ResearchSubjectObject = { ...obj };
+  const { name, description, ...rest }: ResearchSubjectObject = result;
+  const localizedName: string | undefined = checkIfExist(name)
+    ? getLocalizedText(name)
+    : undefined;
+  const localizedDescription: string | undefined = checkIfExist(description)
+    ? getLocalizedText(description)
+    : undefined;
+  result = {
+    ...rest,
+    name: localizedName,
+    description: localizedDescription,
+  };
   return result;
 }
 
 /**
- * Find localized text for prerequisites.
- * Uses checkIfExist from util.ts
- * This function assumes that the names have already been localized.
+ * Find localized text for prerequisites. Included in our flow.
+ * Uses getLocalizedText from util.ts
  */
-function localizePrerequisites(obj: JSONObject): JSONObject {
-  let result: JSONObject = { ...obj };
-  for (const key in result) {
-    const { prerequisites, ...otherFields }: JSONObject = result[key];
-    const localizedPrerequisites = checkIfExist(prerequisites)
-      ? [
-          ...prerequisites[0].map((prerequisite: string) => {
-            return result[prerequisite].name;
-          }),
-        ]
-      : undefined;
-    result[key] = {
-      prerequisites: localizedPrerequisites,
-      ...otherFields,
-    };
-  }
+function localizePrerequisites(
+  obj: ResearchSubjectObject
+): ResearchSubjectObject {
+  let result: ResearchSubjectObject = { ...obj };
+  const { prerequisites, ...rest }: ResearchSubjectObject = result;
+  const localizedPrerequisites = prerequisites
+    ? [
+        ...prerequisites[0].map((prerequisite: string) => {
+          return getLocalizedText(prerequisite);
+        }),
+      ]
+    : undefined;
+  result = {
+    prerequisites: localizedPrerequisites,
+    ...rest,
+  };
   return result;
 }
 
 /**
- * Normalize research tier and field
- * Uses checkIfExist and capitalize from util.ts
- * Example: {domain: 'military', tier: 2, domain: 'military_assault"} becomes {tier: Military 2, domain: Assault}.
+ * Normalize research tier and field. Included in our flow.
+ * Example: {domain: 'military', tier: 2, domain: 'military_assault"} becomes {tier: Military 2, domain: Assault}
+ * Uses capitalize from util.ts
  */
-function normalizeTierAndField(obj: JSONObject): JSONObject {
-  let result: JSONObject = { ...obj };
-  for (const key in result) {
-    const { domain, tier, field, ...rest }: JSONObject = result[key];
-    const normalizedTier: string | undefined =
-      checkIfExist(domain) && checkIfExist(tier)
-        ? `${capitalize(domain)} ${tier}`
-        : undefined;
-    const normalizedField: string | undefined = checkIfExist(field)
-      ? capitalize(field.split("_")[1])
-      : undefined;
-    result[key] = {
-      ...rest,
-      tier: normalizedTier,
-      field: normalizedField,
-    };
-  }
+function normalizeTierAndField(
+  obj: ResearchSubjectObject
+): ResearchSubjectObject {
+  let result: ResearchSubjectObject = { ...obj };
+  const { domain, tier, field, ...rest }: ResearchSubjectObject = result;
+  const normalizedTier: string | undefined =
+    domain && tier ? `${capitalize(domain)} ${tier}` : undefined;
+  const normalizedField: string | undefined = field
+    ? field.split("_")[1]
+    : undefined;
+  result = {
+    ...rest,
+    tier: normalizedTier,
+    field: normalizedField,
+  };
   return result;
 }
 
 /**
  * Final adjustments for readability. Adds race field, more human readable key, id, and re-orders fields.
- * Uses capitalize from util.ts
- * Also replaces "Trader" with "TEC".
+ * Takes in the entire research subjects JSON object. Also replaces "Trader" with "TEC".
+ * Uses capitalize from util.ts. Not included in our flow.
  */
-function prettify(obj: JSONObject): JSONObject {
-  let result: JSONObject = {};
-  let json = { ...obj };
-  for (const key in json) {
+function prettify(obj: JSONResearchSubjects): JSONResearchSubjects {
+  let result: JSONResearchSubjects = {};
+  let researchSubjectsCopy: JSONResearchSubjects = { ...obj };
+  for (const key in researchSubjectsCopy) {
     const {
       name,
       description,
@@ -206,7 +195,7 @@ function prettify(obj: JSONObject): JSONObject {
       field,
       research_time,
       ...rest
-    }: JSONObject = json[key];
+    }: JSONResearchSubjects = researchSubjectsCopy[key];
     let id: string = key;
     let race: string = capitalize(key.split("_")[0]);
     race = race === "Trader" ? "TEC" : race;

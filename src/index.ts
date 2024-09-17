@@ -4,23 +4,23 @@ import {
   researchSubjects,
   rawResearchSubjects,
 } from "./entities/ResearchSubject";
-import { rawWeapons, weapons } from "./entities/Weapon";
-import { rawUnits, shipUnits } from "./entities/Unit";
+// import { rawWeapons, weapons } from "./entities/Weapon";
+// import { rawUnits, shipUnits } from "./entities/Unit";
 import { JSONObject } from "./util";
 
 writeFiles([
   [researchSubjects, "ResearchSubjectsWiki"],
   [rawResearchSubjects, "ResearchSubjectsRaw"],
-  [shipUnits, "ShipUnitsWiki"],
-  [rawUnits, "UnitsRaw"],
-  [weapons, "WeaponsWiki"],
-  [rawWeapons, "WeaponsRaw"],
+  // [shipUnits, "ShipUnitsWiki"],
+  // [rawUnits, "UnitsRaw"],
+  // [weapons, "WeaponsWiki"],
+  // [rawWeapons, "WeaponsRaw"],
 ]);
 
 function writeFiles(jsonToWrite: Array<[JSONObject, string]>): void {
   jsonToWrite.forEach((fileToWrite: [JSONObject, string]) => {
     fs.writeFile(
-      `../../${fileToWrite[1]}.json`,
+      `src/output/${fileToWrite[1]}.json`,
       JSON.stringify(fileToWrite[0], null, 2),
       (err) => {
         if (err) {
