@@ -36,6 +36,7 @@ shipUnits = {
       "attack",
       "ai",
       "ai_attack_target",
+      "player_ai",
       "user_interface",
       "formation",
       "spawn_debris",
@@ -79,7 +80,7 @@ shipUnits = { ...findWeapons(shipUnits) };
 function expandCosts(obj: JSONObject): JSONObject {
   let result = { ...obj };
   for (const key in result) {
-    const { build }: JSONObject = result[key];
+    const { build, ...rest }: JSONObject = result[key];
     let credits: number | undefined;
     let metal: number | undefined;
     let crystal: number | undefined;
@@ -89,32 +90,35 @@ function expandCosts(obj: JSONObject): JSONObject {
     let kalanide: number | undefined;
     let quarnium: number | undefined;
     if (checkIfExist(build)) {
-      const { price, exotic_price, ...rest }: JSONObject = result[key];
-      if (checkIfExist(price)) {
-        credits = checkIfExist(price.credits) ? price.credits : undefined;
-        metal = checkIfExist(price.metal) ? price.metal : undefined;
-        crystal = checkIfExist(price.crystal) ? price.crystal : undefined;
+      if (checkIfExist(build.price)) {
+        credits = checkIfExist(build.price.credits)
+          ? build.price.credits
+          : undefined;
+        metal = checkIfExist(build.price.metal) ? build.price.metal : undefined;
+        crystal = checkIfExist(build.price.crystal)
+          ? build.price.crystal
+          : undefined;
       }
-      if (checkIfExist(exotic_price)) {
+      if (checkIfExist(build.exotic_price)) {
         andvar = getExoticPrice(
           getExoticAliasConversion("andvar"),
-          exotic_price
+          build.exotic_price
         );
         tauranite = getExoticPrice(
           getExoticAliasConversion("tauranite"),
-          exotic_price
+          build.exotic_price
         );
         indurium = getExoticPrice(
           getExoticAliasConversion("indurium"),
-          exotic_price
+          build.exotic_price
         );
         kalanide = getExoticPrice(
           getExoticAliasConversion("kalanide"),
-          exotic_price
+          build.exotic_price
         );
         quarnium = getExoticPrice(
           getExoticAliasConversion("quarnium"),
-          exotic_price
+          build.exotic_price
         );
       }
       result[key] = {
@@ -246,12 +250,8 @@ function localizeNameAndDescription(obj: JSONObject): JSONObject {
   let result: JSONObject = { ...obj };
   for (const key in result) {
     const { name, description, ...rest }: JSONObject = result[key];
-    const localizedName: string | undefined = checkIfExist(name)
-      ? getLocalizedText(`${key}_name`)
-      : undefined;
-    const localizedDescription: string | undefined = checkIfExist(description)
-      ? getLocalizedText(`${key}_description`)
-      : undefined;
+    const localizedName = getLocalizedText(`${key}_name`);
+    const localizedDescription = getLocalizedText(`${key}_description`);
     result[key] = {
       ...rest,
       name: localizedName,
