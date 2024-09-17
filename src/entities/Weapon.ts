@@ -59,7 +59,7 @@ weapons = { ...prettify(weapons) };
  * Calculate DPS. Note: At the time of writing, I'm trying to make this as close to dshaver's as possible.
  * Uses roundTo from util.ts
  */
-function calculateDPS(obj: JSONObject) {
+function calculateDPS(obj: JSONObject): JSONObject {
   const result: JSONObject = { ...obj };
   for (const key in result) {
     const { ...fields }: { firing: any } = result[key];
@@ -84,7 +84,7 @@ function calculateDPS(obj: JSONObject) {
  * Get travel speed. Note: At the time of writing, I'm trying to make this as close to dshaver's as possible.
  * Uses checkIfExist from util.ts
  */
-function getTravelSpeed(obj: JSONObject) {
+function getTravelSpeed(obj: JSONObject): JSONObject {
   const result: JSONObject = { ...obj };
   for (const key in result) {
     const { firing, ...rest }: { firing: any } = weapons[key];
@@ -122,7 +122,7 @@ function localizeName(obj: JSONObject): JSONObject {
 /**
  * Final adjustments for readability. Adds id field and makes new key
  */
-function prettify(obj: JSONObject) {
+function prettify(obj: JSONObject): JSONObject {
   let result: JSONObject = {};
   let objCopy: JSONObject = { ...obj };
   for (const key in objCopy) {
@@ -153,4 +153,15 @@ function prettify(obj: JSONObject) {
   return result;
 }
 
-export { weapons, rawWeapons };
+function getWeaponById(id: string, weapons: JSONObject) {
+  let weaponsCopy = { ...weapons };
+  let result = {};
+  for (const key in weaponsCopy) {
+    if (weaponsCopy[key].id === id) {
+      result = { ...weaponsCopy[key] };
+    }
+  }
+  return result;
+}
+
+export { weapons, rawWeapons, getWeaponById };

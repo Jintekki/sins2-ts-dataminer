@@ -4,47 +4,31 @@ import {
   researchSubjects,
   rawResearchSubjects,
 } from "./entities/ResearchSubject";
-// import { getShipUnits, getRawShipUnits } from "./entities/Units";
+import { rawWeapons, weapons } from "./entities/Weapon";
+import { rawUnits, shipUnits } from "./entities/Unit";
+import { JSONObject } from "./util";
 
-// /* Units */
-// // Wiki-ready units
-// fs.writeFile("../../shipUnitsWiki.json", getShipUnits(), (err) => {
-//   if (err) {
-//     console.error("Error writing file:", err);
-//   } else {
-//     console.log("Wiki-ready units file has been written successfully");
-//   }
-// });
-// // Raw units
-// fs.writeFile("../../shipUnitsRaw.json", getRawShipUnits(), (err) => {
-//   if (err) {
-//     console.error("Error writing file:", err);
-//   } else {
-//     console.log("Raw units file has been written successfully");
-//   }
-// });
-/* Reserach Subjects */
-// Wiki-ready research subjects
-fs.writeFile(
-  "../../researchSubjectsWiki.json",
-  JSON.stringify(researchSubjects, null, 2),
-  (err) => {
-    if (err) {
-      console.error("Error writing file:", err);
-    } else {
-      console.log("Wiki-ready subjects file has been written successfully");
-    }
-  }
-);
-// Raw reserach subjects
-fs.writeFile(
-  "../../researchSubjectsRaw.json",
-  JSON.stringify(rawResearchSubjects, null, 2),
-  (err) => {
-    if (err) {
-      console.error("Error writing file:", err);
-    } else {
-      console.log("Raw research subjects file has been written successfully");
-    }
-  }
-);
+writeFiles([
+  [researchSubjects, "ResearchSubjectsWiki"],
+  [rawResearchSubjects, "ResearchSubjectsRaw"],
+  [shipUnits, "ShipUnitsWiki"],
+  [rawUnits, "UnitsRaw"],
+  [weapons, "WeaponsWiki"],
+  [rawWeapons, "WeaponsRaw"],
+]);
+
+function writeFiles(jsonToWrite: Array<[JSONObject, string]>): void {
+  jsonToWrite.forEach((fileToWrite: [JSONObject, string]) => {
+    fs.writeFile(
+      `../../${fileToWrite[1]}.json`,
+      JSON.stringify(fileToWrite[0], null, 2),
+      (err) => {
+        if (err) {
+          console.error("Error writing file:", err);
+        } else {
+          console.log(`${fileToWrite[1]} file has been written successfully`);
+        }
+      }
+    );
+  });
+}
