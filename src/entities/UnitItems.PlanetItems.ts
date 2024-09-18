@@ -34,7 +34,7 @@ const planetItemManipulations = flow(
   removePropertiesFromObject,
   localizeNameAndDescription,
   expandCosts,
-  FlattenPlanetTypesAndPrerequisites
+  flattenPlanetTypesAndPrerequisites
 );
 
 // Include properties to filter out in the array below
@@ -61,73 +61,9 @@ const manipulatedPlanetItems: JSONPlanetItems = {
 };
 
 /* ADJUSTMENTS TO ENTIRE JSON AND GET FINAL OUTPUT  */
-const planetItems: JSONPlanetItems = { ...manipulatedPlanetItems };
+const planetItems: JSONPlanetItems = { ...prettify(manipulatedPlanetItems) };
 
 /* FUNCTIONS */
-/**
- * Filter to get only planet items
- */
-export function getPlanetUnits(units: JSONUnits): JSONPlanetItems {
-  let result: JSONPlanetItems = {};
-  let unitsCopy: JSONUnits = { ...units };
-  for (const key in unitsCopy) {
-    if (unitsCopy[key].item_type.includes("planet_component")) {
-      result[key] = { ...unitsCopy[key] };
-    }
-  }
-  return result;
-}
-
-/**
- * Find localized text for name and description. Included in our flow.
- * Uses getLocalizedText from util.ts
- * Be sure to have LOCALIZED_FILE="en.localized_text" set in your .env.
- */
-function localizeNameAndDescription(obj: PlanetItemObject): PlanetItemObject {
-  let result: PlanetItemObject = { ...obj };
-  const { name, description, ...rest }: PlanetItemObject = result;
-  const localizedName: string | undefined = name
-    ? getLocalizedText(name)
-    : undefined;
-  const localizedDescription: string | undefined = description
-    ? getLocalizedText(description)
-    : undefined;
-  result = {
-    ...rest,
-    name: localizedName,
-    description: localizedDescription,
-  };
-  return result;
-}
-
-/**
- * Find localized text for name and description. Included in our flow.
- * Uses getLocalizedText from util.ts
- * Be sure to have LOCALIZED_FILE="en.localized_text" set in your .env.
- */
-function FlattenPlanetTypesAndPrerequisites(
-  obj: PlanetItemObject
-): PlanetItemObject {
-  let result: PlanetItemObject = { ...obj };
-  const { planet_type_groups, ...rest }: PlanetItemObject = result;
-  let planetTypes: [] | undefined;
-  let prerequisites: [] | undefined;
-  if (planet_type_groups) {
-    planetTypes = planet_type_groups[0].planet_types
-      ? planet_type_groups[0].planet_types
-      : undefined;
-    prerequisites = planet_type_groups[0].prerequisites
-      ? planet_type_groups[0].prerequisites
-      : undefined;
-  }
-  result = {
-    ...rest,
-    planet_type: planetTypes,
-    prerequisites: prerequisites,
-  };
-  return result;
-}
-
 /**
  * Returns a JSON Object with the price and exotic_price properties removed. Included in our flow.
  * The properties are replaced by credits, metal, crystal, andvar, tauranite, indurium, kalanide, and quarnium properties.
@@ -179,6 +115,100 @@ function expandCosts(obj: PlanetItemObject): PlanetItemObject {
     kalanide,
     quarnium,
   };
+  return result;
+}
+
+/**
+ * Find localized text for name and description. Included in our flow.
+ * Uses getLocalizedText from util.ts
+ * Be sure to have LOCALIZED_FILE="en.localized_text" set in your .env.
+ */
+function flattenPlanetTypesAndPrerequisites(
+  obj: PlanetItemObject
+): PlanetItemObject {
+  let result: PlanetItemObject = { ...obj };
+  const { planet_type_groups, ...rest }: PlanetItemObject = result;
+  let planetTypes: [] | undefined;
+  let prerequisites: [] | undefined;
+  if (planet_type_groups) {
+    planetTypes = planet_type_groups[0].planet_types
+      ? planet_type_groups[0].planet_types
+      : undefined;
+    prerequisites = planet_type_groups[0].prerequisites
+      ? planet_type_groups[0].prerequisites
+      : undefined;
+  }
+  result = {
+    ...rest,
+    planet_type: planetTypes,
+    prerequisites: prerequisites,
+  };
+  return result;
+}
+
+/**
+ * Filter to get only planet items
+ */
+export function getPlanetUnits(units: JSONUnits): JSONPlanetItems {
+  let result: JSONPlanetItems = {};
+  let unitsCopy: JSONUnits = { ...units };
+  for (const key in unitsCopy) {
+    if (unitsCopy[key].item_type.includes("planet_component")) {
+      result[key] = { ...unitsCopy[key] };
+    }
+  }
+  return result;
+}
+
+/**
+ * Find localized text for name and description. Included in our flow.
+ * Uses getLocalizedText from util.ts
+ * Be sure to have LOCALIZED_FILE="en.localized_text" set in your .env.
+ */
+function localizeNameAndDescription(obj: PlanetItemObject): PlanetItemObject {
+  let result: PlanetItemObject = { ...obj };
+  const { name, description, ...rest }: PlanetItemObject = result;
+  const localizedName: string | undefined = name
+    ? getLocalizedText(name)
+    : undefined;
+  const localizedDescription: string | undefined = description
+    ? getLocalizedText(description)
+    : undefined;
+  result = {
+    ...rest,
+    name: localizedName,
+    description: localizedDescription,
+  };
+  return result;
+}
+
+/**
+ * Final adjustments for readability. Adds id, and re-orders fields.
+ * Takes in the entire research subjects JSON object. Also replaces "Trader" with "TEC".
+ * Uses capitalize from util.ts. Not included in our flow.
+ */
+function prettify(obj: JSONPlanetItems): JSONPlanetItems {
+  let result: JSONPlanetItems = {};
+  let planetItemsCopy: JSONPlanetItems = { ...obj };
+  for (const key in planetItemsCopy) {
+    const { name, description, ...rest }: JSONPlanetItems =
+      planetItemsCopy[key];
+    let id: string = key;
+    let newKey = key
+      .split("_")
+      .map((word: string) => capitalize(word))
+      .join(" ");
+    let race: string = newKey.split(" ")[0];
+    race = race === "Trader" ? "TEC" : race;
+    newKey = newKey.replace("Trader", "TEC");
+    result[newKey] = {
+      name,
+      id,
+      description,
+      race,
+      ...rest,
+    };
+  }
   return result;
 }
 

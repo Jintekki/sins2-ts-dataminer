@@ -64,3 +64,7 @@ Object.keys(shipUnits).length === Object.keys(rawShipUnits).length
 Object.keys(structureUnits).length === Object.keys(rawStructureUnits).length
   ? console.log("No strcuture units were lost")
   : console.log("WARNING: Structure units missing!");
+
+Object.keys(planetItems).length === Object.keys(rawPlanetItems).length
+  ? console.log("No planet items were lost")
+  : console.log("WARNING: Planet Items missing!");

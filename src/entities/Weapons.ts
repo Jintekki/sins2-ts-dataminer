@@ -140,6 +140,7 @@ function prettify(obj: JSONWeapons): JSONWeapons {
       .split("_")
       .map((word: string) => capitalize(word))
       .join(" ");
+    newKey = newKey.replace("Trader", "TEC");
     result[newKey] = {
       name: name,
       id: id,
