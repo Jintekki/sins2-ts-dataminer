@@ -30,8 +30,8 @@ const manipulations = flow(
 );
 
 const manipulatedWeapons: JSONWeapons = {
-  ...objectMap(rawWeapons, (researchSubject: WeaponObject): WeaponObject => {
-    return manipulations(researchSubject, [
+  ...objectMap(rawWeapons, (weapon: WeaponObject): WeaponObject => {
+    return manipulations(weapon, [
       "version",
       "pitch_speed",
       "yaw_speed",
@@ -55,7 +55,7 @@ const weapons: JSONWeapons = { ...prettify(manipulatedWeapons) };
 /* FUNCTIONS */
 /**
  * Calculate DPS. Note: At the time of writing, I'm trying to make this as close to dshaver's as possible.
- * Uses roundTo from util.ts
+ * Uses roundTo from util.ts. Included in our flow.
  */
 function calculateDPS(obj: WeaponObject): WeaponObject {
   let result: WeaponObject = { ...obj };
@@ -76,7 +76,7 @@ function calculateDPS(obj: WeaponObject): WeaponObject {
 
 /**
  * Get travel speed. Note: At the time of writing, I'm trying to make this as close to dshaver's as possible.
- * Uses from util.ts
+ * Uses from util.ts. Included in our flow.
  */
 function getTravelSpeed(obj: WeaponObject): WeaponObject {
   let result: WeaponObject = { ...obj };
@@ -95,7 +95,7 @@ function getTravelSpeed(obj: WeaponObject): WeaponObject {
 
 /**
  * Find localized text for name and description.
- * Uses getLocalizedText from util.ts
+ * Uses getLocalizedText from util.ts. Included in our flow.
  * Be sure to have LOCALIZED_FILE="en.localized_text" set in your .env.
  */
 function localizeName(obj: WeaponObject): WeaponObject {
@@ -112,10 +112,10 @@ function localizeName(obj: WeaponObject): WeaponObject {
 }
 
 /**
- * Final adjustments for readability. Adds id field and makes new key
+ * Final adjustments for readability. Adds id field and makes new key.
+ * Not included in our flow.
  */
 function prettify(obj: JSONWeapons): JSONWeapons {
-  console.log(obj);
   let result: JSONWeapons = {};
   let objCopy: JSONWeapons = { ...obj };
   for (const key in objCopy) {
@@ -130,8 +130,7 @@ function prettify(obj: JSONWeapons): JSONWeapons {
       ...rest
     }: WeaponObject = objCopy[key];
     const id: string = key;
-    const newKey: string = name;
-    result[newKey] = {
+    result[key] = {
       name: name,
       id: id,
       weapon_type: weapon_type,
@@ -146,9 +145,12 @@ function prettify(obj: JSONWeapons): JSONWeapons {
   return result;
 }
 
-function getWeaponById(id: string, weapons: JSONWeapons): WeaponObject {
+function getWeaponById(
+  id: string,
+  weapons: JSONWeapons
+): WeaponObject | undefined {
   let weaponsCopy = { ...weapons };
-  let result = {};
+  let result;
   for (const key in weaponsCopy) {
     if (weaponsCopy[key].id === id) {
       result = { ...weaponsCopy[key] };
@@ -157,4 +159,4 @@ function getWeaponById(id: string, weapons: JSONWeapons): WeaponObject {
   return result;
 }
 
-export { weapons, rawWeapons, getWeaponById };
+export { weapons, rawWeapons, getWeaponById, JSONWeapons, WeaponObject };
