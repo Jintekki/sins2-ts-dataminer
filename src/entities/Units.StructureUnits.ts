@@ -25,13 +25,13 @@ interface JSONUnits extends JSONObject {
 interface StructureUnitObject extends UnitObject {}
 interface JSONStructureUnits extends JSONUnits {}
 
-/* GET UNMANIPULATED ("RAW") UNIT JSON OBJECTS */
+/* GET UNMANIPULATED ("RAW") STRUCTURE JSON OBJECTS */
 const unitFiles: fs.Dirent[] = getFilesByExtension(".unit");
 const rawUnits: JSONUnits = {
   ...createJSONFromFiles(unitFiles),
 };
 
-/* MANIPULATIONS AND GET FINAL SHIP UNIT JSON OBJECTS */
+/* MANIPULATIONS AND GET FINAL SHIP STRUCTURE JSON OBJECTS */
 let rawStructureUnits: JSONStructureUnits = {
   ...getStructureUnits(rawUnits),
 };
@@ -148,9 +148,7 @@ function expandCosts(obj: StructureUnitObject): StructureUnitObject {
 }
 
 /**
- * Find localized text for name and description.
- * Uses getLocalizedText and getLocalizedDescription from util.ts
- * Be sure to have LOCALIZED_FILE="en.localized_text" set in your .env.
+ * Gets slot type and slots required
  */
 function getSlotTypeAndSlotsRequired(
   obj: StructureUnitObject

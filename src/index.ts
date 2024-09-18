@@ -9,6 +9,11 @@ import {
   structureUnits,
   rawStructureUnits,
 } from "./entities/Units.StructureUnits";
+import {
+  rawUnitItems,
+  rawPlanetItems,
+  planetItems,
+} from "./entities/UnitItems.PlanetItems";
 import { JSONObject } from "./util";
 
 // Write JSON to files
@@ -22,6 +27,9 @@ writeFiles([
   [rawWeapons, "WeaponsRaw"],
   [structureUnits, "StructuresWiki"],
   [rawStructureUnits, "StructuresRaw"],
+  [rawUnitItems, "UnitItemsRaw"],
+  [rawPlanetItems, "PlanetItemsRaw"],
+  [planetItems, "PlanetItemsWiki"],
 ]);
 
 function writeFiles(jsonToWrite: Array<[JSONObject, string]>): void {
@@ -40,7 +48,7 @@ function writeFiles(jsonToWrite: Array<[JSONObject, string]>): void {
   });
 }
 
-// Checks to verify no data was lost
+// Checks to verify no data was lost (usually happens during prettification)
 Object.keys(researchSubjects).length === Object.keys(rawResearchSubjects).length
   ? console.log("No research subjects were lost")
   : console.log("WARNING: Research subjects missing!");
