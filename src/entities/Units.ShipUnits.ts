@@ -279,7 +279,8 @@ function prettify(obj: JSONShipUnits): JSONShipUnits {
     let id: string = key;
     let race: string = capitalize(key.split("_")[0]);
     race = race === "Trader" ? "TEC" : race;
-    result[key] = {
+    let newKey = `${race} ${name}`;
+    result[newKey] = {
       name,
       id,
       description,

@@ -306,7 +306,17 @@ function prettify(obj: JSONStructureUnits): JSONStructureUnits {
     let id: string = key;
     let race: string = capitalize(key.split("_")[0]);
     race = race === "Trader" ? "TEC" : race;
-    result[key] = {
+    let subRace: string = "";
+    if (race === "Advent") {
+      if (key.split("_")[1] === "loyalist") subRace = "Reborn";
+      if (key.split("_")[1] === "rebel") subRace = "Wrath";
+    }
+    if (race === "TEC") {
+      if (key.split("_")[1] === "loyalist") subRace = "Enclave";
+      if (key.split("_")[1] === "rebel") subRace = "Primacy";
+    }
+    let newKey = `${race} ${subRace.length ? subRace + " " : " "}${name}`;
+    result[newKey] = {
       name,
       id,
       description,
