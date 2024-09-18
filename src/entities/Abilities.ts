@@ -24,7 +24,7 @@ const rawAbilities: JSONAbilities = {
   ...createJSONFromFiles(abilityFiles),
 };
 
-/* MANIPULATE INDIVIDUAL RESEARCH SUBJECT OBJECTS */
+/* MANIPULATE INDIVIDUAL ABILITY OBJECTS */
 // Put functions in this flow that take as input a AbilityObject and output a AbilityObject
 const manipulations = flow(removePropertiesFromObject);
 
@@ -51,9 +51,9 @@ const abilities = { ...prettify(manipulatedAbilities) };
  */
 function prettify(obj: JSONAbilities): JSONAbilities {
   let result: JSONAbilities = {};
-  let researchSubjectsCopy: JSONAbilities = { ...obj };
-  for (const key in researchSubjectsCopy) {
-    const { ...rest }: JSONAbilities = researchSubjectsCopy[key];
+  let abilitiesCopy: JSONAbilities = { ...obj };
+  for (const key in abilitiesCopy) {
+    const { ...rest }: JSONAbilities = abilitiesCopy[key];
     let id: string = key;
     let newKey: string = key
       .split("_")

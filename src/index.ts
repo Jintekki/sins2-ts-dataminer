@@ -15,24 +15,30 @@ import {
   planetItems,
 } from "./entities/UnitItems.PlanetItems";
 import { abilities, rawAbilities } from "./entities/Abilities";
+import {
+  actionDataSources,
+  rawActionDataSources,
+} from "./entities/ActionDataSources";
 import { JSONObject } from "./util";
 
 // Write JSON to files
 writeFiles([
-  [researchSubjects, "ResearchSubjectsWiki"],
-  [rawResearchSubjects, "ResearchSubjectsRaw"],
-  [rawUnits, "UnitsRaw"],
-  [rawShipUnits, "ShipUnitsRaw"],
-  [shipUnits, "ShipUnitsWiki"],
-  [weapons, "WeaponsWiki"],
-  [rawWeapons, "WeaponsRaw"],
-  [structureUnits, "StructuresWiki"],
-  [rawStructureUnits, "StructuresRaw"],
-  [rawUnitItems, "UnitItemsRaw"],
-  [rawPlanetItems, "PlanetItemsRaw"],
-  [planetItems, "PlanetItemsWiki"],
+  // [researchSubjects, "ResearchSubjectsWiki"],
+  // [rawResearchSubjects, "ResearchSubjectsRaw"],
+  // [rawUnits, "UnitsRaw"],
+  // [rawShipUnits, "ShipUnitsRaw"],
+  // [shipUnits, "ShipUnitsWiki"],
+  // [weapons, "WeaponsWiki"],
+  // [rawWeapons, "WeaponsRaw"],
+  // [structureUnits, "StructuresWiki"],
+  // [rawStructureUnits, "StructuresRaw"],
+  // [rawUnitItems, "UnitItemsRaw"],
+  // [rawPlanetItems, "PlanetItemsRaw"],
+  // [planetItems, "PlanetItemsWiki"],
   [rawAbilities, "AbilitiesRaw"],
-  [abilities, "AbilityWiki"],
+  [abilities, "AbilitiesWiki"],
+  [rawActionDataSources, "ActionDataSourcesRaw"],
+  [actionDataSources, "ActionDataSourcesWiki"],
 ]);
 
 function writeFiles(jsonToWrite: Array<[JSONObject, string]>): void {
@@ -75,3 +81,8 @@ function writeFiles(jsonToWrite: Array<[JSONObject, string]>): void {
 Object.keys(abilities).length === Object.keys(rawAbilities).length
   ? console.log("No abilities were lost")
   : console.log("WARNING: Abilities missing!");
+
+Object.keys(actionDataSources).length ===
+Object.keys(rawActionDataSources).length
+  ? console.log("No action data sources were lost")
+  : console.log("WARNING: Action data sources missing!");
