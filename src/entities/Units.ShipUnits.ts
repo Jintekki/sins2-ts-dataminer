@@ -23,7 +23,9 @@ interface JSONUnits extends JSONObject {
   [key: string]: UnitObject;
 }
 interface ShipUnitObject extends UnitObject {}
-interface JSONShipUnits extends JSONUnits {}
+interface JSONShipUnits extends JSONUnits {
+  [key: string]: ShipUnitObject;
+}
 
 /* GET UNMANIPULATED ("RAW") UNIT JSON OBJECTS */
 const unitFiles: fs.Dirent[] = getFilesByExtension(".unit");

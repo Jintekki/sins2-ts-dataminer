@@ -18,7 +18,9 @@ interface JSONUnits extends JSONObject {
   [key: string]: UnitObject;
 }
 interface PlanetItemObject extends UnitObject {}
-interface JSONPlanetItems extends JSONUnits {}
+interface JSONPlanetItems extends JSONUnits {
+  [key: string]: PlanetItemObject;
+}
 
 /* GET UNMANIPULATED ("RAW") UNIT ITEM JSON OBJECTS */
 const unitFiles: fs.Dirent[] = getFilesByExtension(".unit_item");
