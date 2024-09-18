@@ -59,11 +59,36 @@ function prettify(obj: JSONActionDataSources): JSONActionDataSources {
   let actionDataSourceCopy: JSONActionDataSources = { ...obj };
   for (const key in actionDataSourceCopy) {
     const { ...rest }: JSONActionDataSources = actionDataSourceCopy[key];
-    result[key] = {
+    let id = key;
+    let newKey: string = key
+      .split("_")
+      .map((word: string) => capitalize(word))
+      .join(" ");
+    result[newKey] = {
+      id: id,
       ...rest,
     };
   }
   return result;
 }
 
-export { actionDataSources, rawActionDataSources };
+function getActionSourceById(
+  id: string,
+  actionDataSources: JSONActionDataSources
+): ActionDataSourceObject | undefined {
+  let actionDataSourcesCopy = { ...actionDataSources };
+  let result;
+  for (const key in actionDataSourcesCopy) {
+    if (actionDataSourcesCopy[key].id === id) {
+      result = { ...actionDataSourcesCopy[key] };
+    }
+  }
+  return result;
+}
+
+export {
+  actionDataSources,
+  rawActionDataSources,
+  getActionSourceById,
+  ActionDataSourceObject,
+};
