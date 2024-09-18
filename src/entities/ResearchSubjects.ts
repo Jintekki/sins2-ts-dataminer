@@ -201,7 +201,9 @@ function prettify(obj: JSONResearchSubjects): JSONResearchSubjects {
     let id: string = key;
     let race: string = capitalize(key.split("_")[0]);
     race = race === "Trader" ? "TEC" : race;
-    result[key] = {
+    let newKey = `${race} ${name}`;
+    newKey = result[newKey] ? `${newKey} II` : newKey;
+    result[newKey] = {
       name,
       description,
       id,
