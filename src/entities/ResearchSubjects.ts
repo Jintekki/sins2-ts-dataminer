@@ -179,7 +179,7 @@ function normalizeTierAndField(
 }
 
 /**
- * Final adjustments for readability. Adds race field, more human readable key, id, and re-orders fields.
+ * Final adjustments for readability. Adds id, and re-orders fields.
  * Takes in the entire research subjects JSON object. Also replaces "Trader" with "TEC".
  * Uses capitalize from util.ts. Not included in our flow.
  */
@@ -198,8 +198,7 @@ function prettify(obj: JSONResearchSubjects): JSONResearchSubjects {
     let id: string = key;
     let race: string = capitalize(key.split("_")[0]);
     race = race === "Trader" ? "TEC" : race;
-    let newKey: string = `${race} ${name}`;
-    result[newKey] = {
+    result[key] = {
       name,
       description,
       id,

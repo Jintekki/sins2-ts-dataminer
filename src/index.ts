@@ -1,18 +1,19 @@
-/* index.ts: writes JSON to files */
 import fs from "fs";
 import {
   researchSubjects,
   rawResearchSubjects,
-} from "./entities/ResearchSubject";
+} from "./entities/ResearchSubjects";
 import { rawWeapons, weapons } from "./entities/Weapons";
-// import { rawUnits, shipUnits } from "./entities/Unit";
+import { rawUnits, rawShipUnits, shipUnits } from "./entities/Units";
 import { JSONObject } from "./util";
 
+// Write JSON to files
 writeFiles([
   [researchSubjects, "ResearchSubjectsWiki"],
   [rawResearchSubjects, "ResearchSubjectsRaw"],
-  // [shipUnits, "ShipUnitsWiki"],
-  // [rawUnits, "UnitsRaw"],
+  [rawUnits, "UnitsRaw"],
+  [rawShipUnits, "ShipUnitsRaw"],
+  [shipUnits, "ShipUnitsWiki"],
   [weapons, "WeaponsWiki"],
   [rawWeapons, "WeaponsRaw"],
 ]);
@@ -32,3 +33,12 @@ function writeFiles(jsonToWrite: Array<[JSONObject, string]>): void {
     );
   });
 }
+
+// Checks to verify no data was lost
+Object.keys(researchSubjects).length === Object.keys(rawResearchSubjects).length
+  ? console.log("No research subjects were lost")
+  : console.log("WARNING: Research subjects missing!");
+
+Object.keys(weapons).length === Object.keys(rawWeapons).length
+  ? console.log("No weapons were lost")
+  : console.log("WARNING: Weapons missing!");

@@ -16,17 +16,9 @@ function capitalize(str: string): string {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
-function checkIfExist(property: any): boolean {
-  try {
-    return property !== undefined ? true : false;
-  } catch (error) {
-    return false;
-  }
-}
-
-function createJSONFromFiles(files: fs.Dirent[]) {
-  let result: any = {};
-  files.forEach((file: any) => {
+function createJSONFromFiles(files: fs.Dirent[]): JSONObject {
+  let result: JSONObject = {};
+  files.forEach((file: fs.Dirent) => {
     result[`${file.name.split(".")[0]}`] = JSON.parse(
       fs.readFileSync(`${entitiesFolder}/${file.name}`, "utf-8").toString()
     );
@@ -65,7 +57,7 @@ function getExoticAliasConversion(exoticAlias: string): string {
 // Used in get
 function getExoticPrice(
   exoticAlias: string,
-  exoticsArray: any[]
+  exoticsArray: { exotic_type: string; count: number }[]
 ): number | undefined {
   let price: number | undefined;
   exoticsArray.forEach(
@@ -118,19 +110,8 @@ function objectMap<Value, Function>(
   );
 }
 
-// Helper function for more accurate rounding
-function roundTo(n: number, digits: number) {
-  if (digits === undefined) {
-    digits = 0;
-  }
-  let multiplicator = Math.pow(10, digits);
-  n = parseFloat((n * multiplicator).toFixed(11));
-  return Math.round(n) / multiplicator;
-}
-
 export {
   capitalize,
-  checkIfExist,
   createJSONFromFiles,
   getExoticAliasConversion,
   getExoticPrice,
@@ -141,5 +122,4 @@ export {
   entitiesFolder,
   objectMap,
   removePropertiesFromObject,
-  roundTo,
 };

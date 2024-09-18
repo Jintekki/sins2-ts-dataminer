@@ -1,33 +1,53 @@
 // SOME WEAPONS NOT BEING FOUND
 
 import {
-  checkIfExist,
+  capitalize,
   createJSONFromFiles,
+  GenericObject,
   getLocalizedText,
   getExoticAliasConversion,
   getExoticPrice,
   getFilesByExtension,
   JSONObject,
-  removePropertiesFromJSONObjects,
+  objectMap,
+  removePropertiesFromObject,
 } from "../util";
 import fs from "fs";
-import { weapons as importedWeapons, getWeaponById } from "./Weapons";
+import { flow } from "fp-ts/function";
+import {
+  weapons as importedWeapons,
+  getWeaponById,
+  WeaponObject,
+  JSONWeapons,
+} from "./Weapons";
 
-/* GET UNMANIPULATED ("RAW") UNIT JSON OBJECTS */
+interface UnitObject extends GenericObject {}
+interface JSONUnits extends JSONObject {
+  [key: string]: UnitObject;
+}
+interface ShipUnitObject extends UnitObject {}
+interface JSONShipUnits extends JSONUnits {}
+
+/* GET UNMANIPULATED ("RAW") RESEARCH SUBJECT JSON OBJECTS */
 const unitFiles: fs.Dirent[] = getFilesByExtension(".unit");
-const rawUnits: JSONObject = {
+const rawUnits: JSONUnits = {
   ...createJSONFromFiles(unitFiles),
 };
 
-/* MANIPULATIONS */
-// Filter to get only ship units
-let shipUnits: JSONObject = { ...getShipUnits(rawUnits) };
+/* MANIPULATIONS AND GET FINAL RESEARCH SUBJECT JSON OBJECTS */
+// Ship Units
+let rawShipUnits: JSONShipUnits = { ...getShipUnits(rawUnits) };
 
-// Filter out irrelevant properties. Note: At the time of writing, I'm trying to make this as close to dshaver's as possible.
-// However, a lot of this seems to be good information that we might want to add back in later.
-shipUnits = {
-  ...removePropertiesFromJSONObjects(
-    [
+const shipManipulations = flow(
+  removePropertiesFromObject,
+  expandCosts,
+  extractHealth,
+  findWeapons
+);
+
+const manipulatedShipUnits: JSONShipUnits = {
+  ...objectMap(rawShipUnits, (shipUnit: ShipUnitObject): ShipUnitObject => {
+    return shipManipulations(shipUnit, [
       "version",
       "spatial",
       "physics",
@@ -53,130 +73,112 @@ shipUnits = {
       "can_join_fleet",
       "action_effect_size",
       "child_meshes",
-      ..."relevantFields",
-    ],
-    shipUnits
-  ),
+    ]);
+  }),
 };
 
-// Localize names and descriptions
-shipUnits = { ...localizeNameAndDescription(shipUnits) };
+const localizedShipUnits: JSONShipUnits = {
+  ...localizeNameAndDescription(manipulatedShipUnits),
+};
 
-// Expand credit, metal, and crystal cost (replaces "price" field with credits, metal, and crystal fields).
-shipUnits = { ...expandCosts(shipUnits) };
-
-// Extract durability, armor, hull, shield, and armor strength
-shipUnits = { ...extractHealth(shipUnits) };
-
-// Find weapon data
-shipUnits = { ...findWeapons(shipUnits) };
+const shipUnits = { ...localizedShipUnits };
 
 /* FUNCTIONS */
 /**
  * Returns a JSON Object with the price and exotic_price properties removed.
- * Uses checkIfExist, getExoticPrice and getExoticAliasConversion from util.ts
+ * Uses getExoticPrice and getExoticAliasConversion from util.ts
  * The properties are replaced by credits, metal, crystal, andvar, tauranite, indurium, kalanide, and quarnium properties.
  */
-function expandCosts(obj: JSONObject): JSONObject {
+function expandCosts(obj: ShipUnitObject): ShipUnitObject {
   let result = { ...obj };
-  for (const key in result) {
-    const { build, ...rest }: JSONObject = result[key];
-    let credits: number | undefined;
-    let metal: number | undefined;
-    let crystal: number | undefined;
-    let andvar: number | undefined;
-    let tauranite: number | undefined;
-    let indurium: number | undefined;
-    let kalanide: number | undefined;
-    let quarnium: number | undefined;
-    if (checkIfExist(build)) {
-      if (checkIfExist(build.price)) {
-        credits = checkIfExist(build.price.credits)
-          ? build.price.credits
-          : undefined;
-        metal = checkIfExist(build.price.metal) ? build.price.metal : undefined;
-        crystal = checkIfExist(build.price.crystal)
-          ? build.price.crystal
-          : undefined;
-      }
-      if (checkIfExist(build.exotic_price)) {
-        andvar = getExoticPrice(
-          getExoticAliasConversion("andvar"),
-          build.exotic_price
-        );
-        tauranite = getExoticPrice(
-          getExoticAliasConversion("tauranite"),
-          build.exotic_price
-        );
-        indurium = getExoticPrice(
-          getExoticAliasConversion("indurium"),
-          build.exotic_price
-        );
-        kalanide = getExoticPrice(
-          getExoticAliasConversion("kalanide"),
-          build.exotic_price
-        );
-        quarnium = getExoticPrice(
-          getExoticAliasConversion("quarnium"),
-          build.exotic_price
-        );
-      }
-      result[key] = {
-        ...rest,
-        credits,
-        metal,
-        crystal,
-        andvar,
-        tauranite,
-        indurium,
-        kalanide,
-        quarnium,
-      };
+  const { build, ...rest }: ShipUnitObject = result;
+  let credits: number | undefined;
+  let metal: number | undefined;
+  let crystal: number | undefined;
+  let andvar: number | undefined;
+  let tauranite: number | undefined;
+  let indurium: number | undefined;
+  let kalanide: number | undefined;
+  let quarnium: number | undefined;
+  if (build) {
+    if (build.price) {
+      credits = build.price.credits ? build.price.credits : undefined;
+      metal = build.price.metal ? build.price.metal : undefined;
+      crystal = build.price.crystal ? build.price.crystal : undefined;
     }
+    if (build.exotic_price) {
+      andvar = getExoticPrice(
+        getExoticAliasConversion("andvar"),
+        build.exotic_price
+      );
+      tauranite = getExoticPrice(
+        getExoticAliasConversion("tauranite"),
+        build.exotic_price
+      );
+      indurium = getExoticPrice(
+        getExoticAliasConversion("indurium"),
+        build.exotic_price
+      );
+      kalanide = getExoticPrice(
+        getExoticAliasConversion("kalanide"),
+        build.exotic_price
+      );
+      quarnium = getExoticPrice(
+        getExoticAliasConversion("quarnium"),
+        build.exotic_price
+      );
+    }
+    result = {
+      ...rest,
+      credits,
+      metal,
+      crystal,
+      andvar,
+      tauranite,
+      indurium,
+      kalanide,
+      quarnium,
+    };
   }
   return result;
 }
 
 /**
  * Returns a JSON Object with the health removed.
- * Uses checkIfExist, getExoticPrice and getExoticAliasConversion from util.ts
+ * Uses getExoticPrice and getExoticAliasConversion from util.ts
  * The properties are replaced by durability, armor, hull, shield, and armor_strength.
  */
-export function extractHealth(obj: JSONObject): JSONObject {
+export function extractHealth(obj: ShipUnitObject): ShipUnitObject {
   let result = { ...obj };
-  for (const key in result) {
-    let durability: number | undefined;
-    let armor: number | undefined;
-    let hull: number | undefined;
-    let shield: number | undefined;
-    let armor_strength: number | undefined;
-    const { health, ...otherFields }: any = result[key];
-    if (checkIfExist(health)) {
-      durability = checkIfExist(health["durability"])
-        ? health["durability"]
-        : undefined;
-      armor = checkIfExist(health.levels[0].max_armor_points)
-        ? health.levels[0].max_armor_points
-        : undefined;
-      hull = checkIfExist(health.levels[0].max_hull_points)
-        ? health.levels[0].max_hull_points
-        : undefined;
-      shield = checkIfExist(health.levels[0].max_shield_points)
-        ? health.levels[0].max_shield_points
-        : undefined;
-      armor_strength = checkIfExist(health.levels[0].armor_strength)
-        ? health.levels[0].armor_strength
-        : undefined;
-    }
-    result[key] = {
-      ...otherFields,
-      durability,
-      armor,
-      hull,
-      shield,
-      armor_strength,
-    };
+  let durability: number | undefined;
+  let armor: number | undefined;
+  let hull: number | undefined;
+  let shield: number | undefined;
+  let armor_strength: number | undefined;
+  const { health, ...otherFields }: any = result;
+  if (health) {
+    durability = health["durability"] ? health["durability"] : undefined;
+    armor = health.levels[0].max_armor_points
+      ? health.levels[0].max_armor_points
+      : undefined;
+    hull = health.levels[0].max_hull_points
+      ? health.levels[0].max_hull_points
+      : undefined;
+    shield = health.levels[0].max_shield_points
+      ? health.levels[0].max_shield_points
+      : undefined;
+    armor_strength = health.levels[0].armor_strength
+      ? health.levels[0].armor_strength
+      : undefined;
   }
+  result = {
+    ...otherFields,
+    durability,
+    armor,
+    hull,
+    shield,
+    armor_strength,
+  };
   return result;
 }
 
@@ -184,48 +186,39 @@ export function extractHealth(obj: JSONObject): JSONObject {
  * Finds weapon data
  * Weapon data grabbed from Weapon.ts
  */
-export function findWeapons(units: JSONObject): JSONObject {
-  const result: JSONObject = { ...units };
-  for (const key in result) {
-    const { weapons, ...otherFields }: { weapons: any } = result[key];
-    // Get weapons from Weapons.ts
-    let parsedWeapons: { weapons: any[] } = { weapons: [] };
-    if (weapons) {
-      {
-        parsedWeapons = {
-          weapons: [
-            ...weapons.weapons.map((weapon: any) => {
+export function findWeapons(obj: ShipUnitObject): ShipUnitObject {
+  let result: ShipUnitObject = { ...obj };
+  const { weapons, ...rest }: ShipUnitObject = result;
+  let parsedWeapons: JSONWeapons = {};
+  if (weapons) {
+    {
+      parsedWeapons = {
+        weapons: [
+          ...weapons.weapons.map(
+            (weapon: WeaponObject): WeaponObject | undefined => {
+              if (!getWeaponById(weapon.weapon, importedWeapons)) {
+                console.log(weapon.weapon);
+              }
               return getWeaponById(weapon.weapon, importedWeapons);
-            }),
-          ],
-        };
-      }
+            }
+          ),
+        ],
+      };
     }
-    // Remove duplicate weapons
-    parsedWeapons["weapons"] = [
-      ...new Set(
-        parsedWeapons["weapons"].map((weapon: any) => {
-          return JSON.stringify(weapon);
-        })
-      ),
-    ].map((weapon: any) => JSON.parse(weapon));
-    // Remove weapons not found (investigate)
-    parsedWeapons["weapons"] = parsedWeapons["weapons"].filter(
-      (weapon: any) => {
-        return JSON.stringify(weapon) !== "{}";
-      }
-    );
-    result[key] = { ...otherFields, weapons: parsedWeapons };
   }
+  result = {
+    ...rest,
+    weapons: parsedWeapons,
+  };
   return result;
 }
 
 /**
  * Filter to get only ship units
  */
-export function getShipUnits(units: JSONObject): JSONObject {
-  let result: JSONObject = {};
-  let unitsCopy: JSONObject = { ...units };
+export function getShipUnits(units: JSONUnits): JSONShipUnits {
+  let result: JSONShipUnits = {};
+  let unitsCopy: JSONUnits = { ...units };
   for (const key in unitsCopy) {
     if (
       (key.includes("capital_ship") ||
@@ -243,13 +236,13 @@ export function getShipUnits(units: JSONObject): JSONObject {
 
 /**
  * Find localized text for name and description.
- * Uses checkIfExist, getLocalizedText and getLocalizedDescription from util.ts
+ * Uses getLocalizedText and getLocalizedDescription from util.ts
  * Be sure to have LOCALIZED_FILE="en.localized_text" set in your .env.
  */
-function localizeNameAndDescription(obj: JSONObject): JSONObject {
-  let result: JSONObject = { ...obj };
+function localizeNameAndDescription(obj: JSONShipUnits): JSONShipUnits {
+  let result: JSONShipUnits = { ...obj };
   for (const key in result) {
-    const { name, description, ...rest }: JSONObject = result[key];
+    const { name, description, ...rest }: JSONShipUnits = result[key];
     const localizedName = getLocalizedText(`${key}_name`);
     const localizedDescription = getLocalizedText(`${key}_description`);
     result[key] = {
@@ -261,4 +254,4 @@ function localizeNameAndDescription(obj: JSONObject): JSONObject {
   return result;
 }
 
-export { rawUnits, shipUnits };
+export { rawUnits, rawShipUnits, shipUnits };
