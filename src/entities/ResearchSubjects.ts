@@ -53,6 +53,7 @@ const manipulatedResearchSubjects: JSONResearchSubjects = {
   ),
 };
 
+/* ADJUSTMENTS TO ENTIRE JSON AND GET FINAL OUTPUT  */
 const researchSubjects = { ...prettify(manipulatedResearchSubjects) };
 
 /* FUNCTIONS */

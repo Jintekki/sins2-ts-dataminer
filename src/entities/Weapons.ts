@@ -21,7 +21,7 @@ const rawWeapons: JSONWeapons = {
   ...createJSONFromFiles(weaponFiles),
 };
 
-/* MANIPULATIONS AND GET FINAL WEAPON JSON OBJECTS */
+/* MANIPULATE INDIVIDUAL WEAPON OBJECTS */
 // Put functions in this flow that take as input a WeaponObject and output a WeaponObject
 const manipulations = flow(
   removePropertiesFromObject,
@@ -52,6 +52,7 @@ const manipulatedWeapons: JSONWeapons = {
   }),
 };
 
+/* ADJUSTMENTS TO ENTIRE JSON AND GET FINAL OUTPUT  */
 const weapons: JSONWeapons = { ...prettify(manipulatedWeapons) };
 
 /* FUNCTIONS */

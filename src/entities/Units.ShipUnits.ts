@@ -75,6 +75,7 @@ const manipulatedShipUnits: JSONShipUnits = {
   }),
 };
 
+/* ADJUSTMENTS TO ENTIRE JSON AND GET FINAL OUTPUT  */
 const localizedShipUnits: JSONShipUnits = {
   ...localizeNameAndDescription(manipulatedShipUnits),
 };

@@ -81,6 +81,7 @@ const manipulatedStructureUnits: JSONStructureUnits = {
   ),
 };
 
+/* ADJUSTMENTS TO ENTIRE JSON AND GET FINAL OUTPUT  */
 const localizedStructureUnits: JSONStructureUnits = {
   ...localizeNameAndDescription(manipulatedStructureUnits),
 };
