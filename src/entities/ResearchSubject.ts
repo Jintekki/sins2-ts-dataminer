@@ -1,6 +1,5 @@
 import {
   capitalize,
-  checkIfExist,
   createJSONFromFiles,
   GenericObject,
   getLocalizedText,
@@ -119,10 +118,10 @@ function localizeNameAndDescription(
 ): ResearchSubjectObject {
   let result: ResearchSubjectObject = { ...obj };
   const { name, description, ...rest }: ResearchSubjectObject = result;
-  const localizedName: string | undefined = checkIfExist(name)
+  const localizedName: string | undefined = name
     ? getLocalizedText(name)
     : undefined;
-  const localizedDescription: string | undefined = checkIfExist(description)
+  const localizedDescription: string | undefined = description
     ? getLocalizedText(description)
     : undefined;
   result = {

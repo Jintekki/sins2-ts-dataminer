@@ -4,7 +4,7 @@ import {
   researchSubjects,
   rawResearchSubjects,
 } from "./entities/ResearchSubject";
-// import { rawWeapons, weapons } from "./entities/Weapon";
+import { rawWeapons, weapons } from "./entities/Weapon";
 // import { rawUnits, shipUnits } from "./entities/Unit";
 import { JSONObject } from "./util";
 
@@ -13,8 +13,8 @@ writeFiles([
   [rawResearchSubjects, "ResearchSubjectsRaw"],
   // [shipUnits, "ShipUnitsWiki"],
   // [rawUnits, "UnitsRaw"],
-  // [weapons, "WeaponsWiki"],
-  // [rawWeapons, "WeaponsRaw"],
+  [weapons, "WeaponsWiki"],
+  [rawWeapons, "WeaponsRaw"],
 ]);
 
 function writeFiles(jsonToWrite: Array<[JSONObject, string]>): void {

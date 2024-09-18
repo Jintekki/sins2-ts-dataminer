@@ -1,27 +1,40 @@
 import {
   capitalize,
-  checkIfExist,
   createJSONFromFiles,
+  GenericObject,
   getLocalizedText,
+  getExoticAliasConversion,
+  getExoticPrice,
   getFilesByExtension,
   JSONObject,
-  removePropertiesFromJSONObjects,
-  roundTo,
+  objectMap,
+  removePropertiesFromObject,
 } from "../util";
 import fs from "fs";
+import { flow } from "fp-ts/function";
+
+interface WeaponObject extends GenericObject {}
+interface JSONWeapons extends JSONObject {
+  [key: string]: WeaponObject;
+}
 
 /* GET UNMANIPULATED ("RAW") WEAPON JSON OBJECTS */
 const weaponFiles: fs.Dirent[] = getFilesByExtension(".weapon");
-const rawWeapons: JSONObject = {
+const rawWeapons: JSONWeapons = {
   ...createJSONFromFiles(weaponFiles),
 };
 
-/* MANIPULATIONS */
-let weapons: JSONObject = { ...rawWeapons };
-// Filter out irrelevant properties
-weapons = {
-  ...removePropertiesFromJSONObjects(
-    [
+/* MANIPULATIONS AND GET FINAL RESEARCH SUBJECT JSON OBJECTS */
+const manipulations = flow(
+  removePropertiesFromObject,
+  localizeName,
+  getTravelSpeed,
+  calculateDPS
+);
+
+const manipulatedWeapons: JSONWeapons = {
+  ...objectMap(rawWeapons, (researchSubject: WeaponObject): WeaponObject => {
+    return manipulations(researchSubject, [
       "version",
       "pitch_speed",
       "yaw_speed",
@@ -36,97 +49,78 @@ weapons = {
       "turret",
       "muzzle_positions",
       "burst_pattern",
-    ],
-    weapons
-  ),
+    ]);
+  }),
 };
 
-// Find localized text for name.
-// Be sure to have LOCALIZED_FILE="en.localized_text" set in your .env.
-weapons = { ...localizeName(weapons) };
-
-// Get travel speed. Note: At the time of writing, I'm trying to make this as close to dshaver's as possible.
-weapons = { ...getTravelSpeed(weapons) };
-
-// Calculate DPS. Note: At the time of writing, I'm trying to make this as close to dshaver's as possible.
-weapons = { ...calculateDPS(weapons) };
-
-// Final adjustments for readability. Human readable key, id, and re-orders fields.
-weapons = { ...prettify(weapons) };
+const weapons: JSONWeapons = { ...prettify(manipulatedWeapons) };
 
 /* FUNCTIONS */
 /**
  * Calculate DPS. Note: At the time of writing, I'm trying to make this as close to dshaver's as possible.
  * Uses roundTo from util.ts
  */
-function calculateDPS(obj: JSONObject): JSONObject {
-  const result: JSONObject = { ...obj };
-  for (const key in result) {
-    const { ...fields }: { firing: any } = result[key];
-    let dps: number = 0;
-    if (result[key].weapon_type === "normal") {
-      dps = ((60 / result[key].cooldown_duration) * result[key].damage) / 60;
-    } else if (result[key].weapon_type === "planet_bombing") {
-      dps =
-        ((60 / result[key].cooldown_duration) * result[key].bombing_damage) /
-        60;
-    }
-    dps = roundTo(dps, 1);
-    result[key] = {
-      ...fields,
-      dps: dps,
-    };
+function calculateDPS(obj: WeaponObject): WeaponObject {
+  let result: WeaponObject = { ...obj };
+  let { ...rest }: WeaponObject = result;
+  let dps: number = 0;
+  if (result.weapon_type === "normal") {
+    dps = ((60 / result.cooldown_duration) * result.damage) / 60;
+  } else if (result.weapon_type === "planet_bombing") {
+    dps = ((60 / result.cooldown_duration) * result.bombing_damage) / 60;
   }
+  dps = Number.parseFloat(dps.toFixed(1));
+  result = {
+    ...rest,
+    dps: dps,
+  };
   return result;
 }
 
 /**
  * Get travel speed. Note: At the time of writing, I'm trying to make this as close to dshaver's as possible.
- * Uses checkIfExist from util.ts
+ * Uses from util.ts
  */
-function getTravelSpeed(obj: JSONObject): JSONObject {
-  const result: JSONObject = { ...obj };
-  for (const key in result) {
-    let travelSpeed: number | undefined;
-    const { firing, ...rest }: { firing: any } = weapons[key];
-    if (checkIfExist(firing)) {
-      travelSpeed = checkIfExist(firing.travel_speed) ? firing.travel_speed : 0;
-    }
-
-    result[key] = {
-      ...rest,
-      travel_speed: travelSpeed,
-    };
+function getTravelSpeed(obj: WeaponObject): WeaponObject {
+  let result: WeaponObject = { ...obj };
+  let travelSpeed: number | undefined;
+  const { firing, ...rest }: WeaponObject = result;
+  if (firing) {
+    travelSpeed = firing.travel_speed ? firing.travel_speed : 0;
   }
+
+  result = {
+    ...rest,
+    travel_speed: travelSpeed,
+  };
   return result;
 }
 
 /**
  * Find localized text for name and description.
- * Uses checkIfExist, getLocalizedText and getLocalizedDescription from util.ts
+ * Uses getLocalizedText from util.ts
  * Be sure to have LOCALIZED_FILE="en.localized_text" set in your .env.
  */
-function localizeName(obj: JSONObject): JSONObject {
-  const result: JSONObject = { ...obj };
-  for (const key in result) {
-    const { name, ...rest }: JSONObject = result[key];
-    const localizedName: string | undefined = checkIfExist(name)
-      ? getLocalizedText(name)
-      : undefined;
-    result[key] = {
-      name: localizedName,
-      ...rest,
-    };
-  }
+function localizeName(obj: WeaponObject): WeaponObject {
+  let result: WeaponObject = { ...obj };
+  const { name, ...rest }: WeaponObject = result;
+  const localizedName: string | undefined = name
+    ? getLocalizedText(name)
+    : undefined;
+  result = {
+    name: localizedName,
+    ...rest,
+  };
   return result;
 }
 
 /**
  * Final adjustments for readability. Adds id field and makes new key
  */
-function prettify(obj: JSONObject): JSONObject {
-  let result: JSONObject = {};
-  let objCopy: JSONObject = { ...obj };
+function prettify(obj: JSONWeapons): JSONWeapons {
+  console.log(obj);
+  let result: JSONWeapons = {};
+  let objCopy: JSONWeapons = { ...obj };
   for (const key in objCopy) {
     const {
       name,
@@ -136,8 +130,8 @@ function prettify(obj: JSONObject): JSONObject {
       cooldown_duration,
       travel_speed,
       range,
-      ...otherFields
-    }: any = objCopy[key];
+      ...rest
+    }: WeaponObject = objCopy[key];
     const id: string = key;
     const newKey: string = name;
     result[newKey] = {
@@ -149,13 +143,13 @@ function prettify(obj: JSONObject): JSONObject {
       cooldown_duration: cooldown_duration,
       travel_speed: travel_speed,
       range: range,
-      ...otherFields,
+      ...rest,
     };
   }
   return result;
 }
 
-function getWeaponById(id: string, weapons: JSONObject) {
+function getWeaponById(id: string, weapons: JSONWeapons): WeaponObject {
   let weaponsCopy = { ...weapons };
   let result = {};
   for (const key in weaponsCopy) {
