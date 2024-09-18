@@ -4,7 +4,11 @@ import {
   rawResearchSubjects,
 } from "./entities/ResearchSubjects";
 import { rawWeapons, weapons } from "./entities/Weapons";
-import { rawUnits, rawShipUnits, shipUnits } from "./entities/Units";
+import { rawUnits, rawShipUnits, shipUnits } from "./entities/Units.ShipUnits";
+import {
+  structureUnits,
+  rawStructureUnits,
+} from "./entities/Units.StructureUnits";
 import { JSONObject } from "./util";
 
 // Write JSON to files
@@ -16,6 +20,8 @@ writeFiles([
   [shipUnits, "ShipUnitsWiki"],
   [weapons, "WeaponsWiki"],
   [rawWeapons, "WeaponsRaw"],
+  [structureUnits, "StructuresWiki"],
+  [rawStructureUnits, "StructuresRaw"],
 ]);
 
 function writeFiles(jsonToWrite: Array<[JSONObject, string]>): void {
@@ -46,3 +52,7 @@ Object.keys(weapons).length === Object.keys(rawWeapons).length
 Object.keys(shipUnits).length === Object.keys(rawShipUnits).length
   ? console.log("No ship units were lost")
   : console.log("WARNING: Ship units missing!");
+
+Object.keys(structureUnits).length === Object.keys(rawStructureUnits).length
+  ? console.log("No strcuture units were lost")
+  : console.log("WARNING: Structure units missing!");

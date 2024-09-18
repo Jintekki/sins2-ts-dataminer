@@ -21,7 +21,8 @@ const rawWeapons: JSONWeapons = {
   ...createJSONFromFiles(weaponFiles),
 };
 
-/* MANIPULATIONS AND GET FINAL RESEARCH SUBJECT JSON OBJECTS */
+/* MANIPULATIONS AND GET FINAL WEAPON JSON OBJECTS */
+// Put functions in this flow that take as input a WeaponObject and output a WeaponObject
 const manipulations = flow(
   removePropertiesFromObject,
   localizeName,
@@ -29,6 +30,7 @@ const manipulations = flow(
   calculateDPS
 );
 
+// Include properties to filter out in the array below
 const manipulatedWeapons: JSONWeapons = {
   ...objectMap(rawWeapons, (weapon: WeaponObject): WeaponObject => {
     return manipulations(weapon, [

@@ -26,6 +26,7 @@ const rawResearchSubjects: JSONResearchSubjects = {
 };
 
 /* MANIPULATIONS AND GET FINAL RESEARCH SUBJECT JSON OBJECTS */
+// Put functions in this flow that take as input a ResearchSubjectObject and output a ResearchSubjectObject
 const manipulations = flow(
   removePropertiesFromObject,
   expandCosts,
@@ -34,6 +35,7 @@ const manipulations = flow(
   localizePrerequisites
 );
 
+// Include properties to filter out in the array below
 const manipulatedResearchSubjects: JSONResearchSubjects = {
   ...objectMap(
     rawResearchSubjects,
