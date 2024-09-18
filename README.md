@@ -4,7 +4,7 @@ Data miner for Sins of a Solar Empire 2. User dshaver has already created a vers
 
 This version attempts to keep every entity to a single file, and attempts to follow closer to a functional programming paradigm.
 Types are mostly used for clarity and explanatory purposes. Once you understand one file, you should understand the rest.
-Most files only borrow utility functions from util.ts. Unit files rely on Weapon.ts.
+Most files only borrow utility functions from util.ts. Unit files rely on Weapons.ts.
 
 # Instructions
 
