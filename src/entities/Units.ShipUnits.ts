@@ -31,7 +31,7 @@ const rawUnits: JSONUnits = {
   ...createJSONFromFiles(unitFiles),
 };
 
-/* MANIPULATIONS AND GET FINAL SHIP UNIT JSON OBJECTS */
+/* MANIPULATE INDIVIDUAL SHIP OBJECTS */
 let rawShipUnits: JSONShipUnits = { ...getShipUnits(rawUnits) };
 
 // Put functions in this flow that take as input a ShipUnitObject and output a ShipUnitObject

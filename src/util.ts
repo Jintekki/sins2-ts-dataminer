@@ -54,7 +54,6 @@ function getExoticAliasConversion(exoticAlias: string): string {
 }
 
 // Example: getExoticPrice(andvar, object)
-// Used in get
 function getExoticPrice(
   exoticAlias: string,
   exoticsArray: { exotic_type: string; count: number }[]

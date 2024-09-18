@@ -26,7 +26,7 @@ const rawUnitItems: JSONUnits = {
   ...createJSONFromFiles(unitFiles),
 };
 
-/* MANIPULATIONS AND GET FINAL SHIP UNIT ITEM JSON OBJECTS */
+/* MANIPULATE INDIVIDUAL PLANET ITEM OBJECTS */
 let rawPlanetItems: JSONPlanetItems = { ...getPlanetUnits(rawUnitItems) };
 
 // Put functions in this flow that take as input a PlanetItemObject and output a PlanetItemObject
@@ -60,6 +60,7 @@ const manipulatedPlanetItems: JSONPlanetItems = {
   ),
 };
 
+/* ADJUSTMENTS TO ENTIRE JSON AND GET FINAL OUTPUT  */
 const planetItems: JSONPlanetItems = { ...manipulatedPlanetItems };
 
 /* FUNCTIONS */

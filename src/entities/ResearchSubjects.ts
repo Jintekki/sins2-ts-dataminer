@@ -25,7 +25,7 @@ const rawResearchSubjects: JSONResearchSubjects = {
   ...createJSONFromFiles(researchSubjectFiles),
 };
 
-/* MANIPULATIONS AND GET FINAL RESEARCH SUBJECT JSON OBJECTS */
+/* MANIPULATE INDIVIDUAL RESEARCH SUBJECT OBJECTS */
 // Put functions in this flow that take as input a ResearchSubjectObject and output a ResearchSubjectObject
 const manipulations = flow(
   removePropertiesFromObject,

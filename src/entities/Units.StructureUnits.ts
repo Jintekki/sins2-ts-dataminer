@@ -31,7 +31,7 @@ const rawUnits: JSONUnits = {
   ...createJSONFromFiles(unitFiles),
 };
 
-/* MANIPULATIONS AND GET FINAL SHIP STRUCTURE JSON OBJECTS */
+/* MANIPULATE INDIVIDUAL STRUCTURE OBJECTS */
 let rawStructureUnits: JSONStructureUnits = {
   ...getStructureUnits(rawUnits),
 };
