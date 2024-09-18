@@ -1,4 +1,5 @@
 import {
+  capitalize,
   createJSONFromFiles,
   GenericObject,
   getLocalizedText,
@@ -132,10 +133,17 @@ function prettify(obj: JSONWeapons): JSONWeapons {
       range,
       ...rest
     }: WeaponObject = objCopy[key];
-    const id: string = key;
-    result[key] = {
+    let id: string = key;
+    let race: string = key.split("_")[0];
+    race = race === "trader" ? "TEC" : capitalize(race);
+    let newKey = key
+      .split("_")
+      .map((word: string) => capitalize(word))
+      .join(" ");
+    result[newKey] = {
       name: name,
       id: id,
+      race: race,
       weapon_type: weapon_type,
       dps: dps,
       penetration: penetration,
