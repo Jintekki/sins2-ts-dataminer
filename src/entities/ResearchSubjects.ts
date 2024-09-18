@@ -12,6 +12,7 @@ import {
 } from "../util";
 import fs from "fs";
 import { flow } from "fp-ts/function";
+import { string } from "fp-ts";
 
 interface ResearchSubjectObject extends GenericObject {}
 interface JSONResearchSubjects extends JSONObject {
@@ -145,11 +146,11 @@ function localizePrerequisites(
   let result: ResearchSubjectObject = { ...obj };
   const { prerequisites, ...rest }: ResearchSubjectObject = result;
   const localizedPrerequisites = prerequisites
-    ? [
-        ...prerequisites[0].map((prerequisite: string) => {
-          return getLocalizedText(prerequisite);
-        }),
-      ]
+    ? prerequisites.map((prerequisitesArray: []) =>
+        prerequisitesArray.map((prerequisite: string) => {
+          return getLocalizedText(`${prerequisite}_research_subject_name`);
+        })
+      )
     : undefined;
   result = {
     prerequisites: localizedPrerequisites,
