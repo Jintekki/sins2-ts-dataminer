@@ -20,6 +20,7 @@ import {
   WeaponObject,
   JSONWeapons,
 } from "./Weapons";
+import { count } from "console";
 
 interface UnitObject extends GenericObject {}
 interface JSONUnits extends JSONObject {
@@ -81,7 +82,7 @@ const localizedShipUnits: JSONShipUnits = {
   ...localizeNameAndDescription(manipulatedShipUnits),
 };
 
-const shipUnits = { ...localizedShipUnits };
+const shipUnits = { ...prettify(localizedShipUnits) };
 
 /* FUNCTIONS */
 /**
@@ -155,7 +156,7 @@ export function extractHealth(obj: ShipUnitObject): ShipUnitObject {
   let hull: number | undefined;
   let shield: number | undefined;
   let armor_strength: number | undefined;
-  const { health, ...otherFields }: any = result;
+  const { health, ...rest }: any = result;
   if (health) {
     durability = health["durability"] ? health["durability"] : undefined;
     armor = health.levels[0].max_armor_points
@@ -172,7 +173,7 @@ export function extractHealth(obj: ShipUnitObject): ShipUnitObject {
       : undefined;
   }
   result = {
-    ...otherFields,
+    ...rest,
     durability,
     armor,
     hull,
@@ -189,26 +190,39 @@ export function extractHealth(obj: ShipUnitObject): ShipUnitObject {
 export function findWeapons(obj: ShipUnitObject): ShipUnitObject {
   let result: ShipUnitObject = { ...obj };
   const { weapons, ...rest }: ShipUnitObject = result;
-  let parsedWeapons: JSONWeapons = {};
+  let parsedWeapons: Array<WeaponObject> = [];
   if (weapons) {
-    {
-      parsedWeapons = {
-        weapons: [
-          ...weapons.weapons.map(
-            (weapon: WeaponObject): WeaponObject | undefined => {
-              if (!getWeaponById(weapon.weapon, importedWeapons)) {
-                console.log(weapon.weapon);
-              }
-              return getWeaponById(weapon.weapon, importedWeapons);
-            }
-          ),
-        ],
-      };
-    }
+    parsedWeapons = [
+      ...weapons.weapons.map(
+        (weapon: WeaponObject): WeaponObject | undefined => {
+          return getWeaponById(weapon.weapon, importedWeapons);
+        }
+      ),
+    ];
   }
+
+  let uniqueParsedWeapons: Array<WeaponObject> = [
+    ...new Set(
+      parsedWeapons.map((weapon: WeaponObject) => JSON.stringify(weapon))
+    ),
+  ].map((weapon: string) => JSON.parse(weapon));
+
+  // Add count to each weapon
+  uniqueParsedWeapons = uniqueParsedWeapons.map(
+    ({ id, ...rest }: WeaponObject): WeaponObject => {
+      let uniqueWeaponID = id;
+      let count = 0;
+      parsedWeapons.forEach(({ id }: WeaponObject) => {
+        if (uniqueWeaponID === id) {
+          count++;
+        }
+      });
+      return { ...rest, id: uniqueWeaponID, count: count };
+    }
+  );
   result = {
     ...rest,
-    weapons: parsedWeapons,
+    weapons: uniqueParsedWeapons,
   };
   return result;
 }
@@ -249,6 +263,30 @@ function localizeNameAndDescription(obj: JSONShipUnits): JSONShipUnits {
       ...rest,
       name: localizedName,
       description: localizedDescription,
+    };
+  }
+  return result;
+}
+
+/**
+ * Final adjustments for readability. Adds id, and re-orders fields.
+ * Takes in the entire research subjects JSON object. Also replaces "Trader" with "TEC".
+ * Uses capitalize from util.ts. Not included in our flow.
+ */
+function prettify(obj: JSONShipUnits): JSONShipUnits {
+  let result: JSONShipUnits = {};
+  let shipUnitsCopy: JSONShipUnits = { ...obj };
+  for (const key in shipUnitsCopy) {
+    const { name, description, ...rest }: JSONShipUnits = shipUnitsCopy[key];
+    let id: string = key;
+    let race: string = capitalize(key.split("_")[0]);
+    race = race === "Trader" ? "TEC" : race;
+    result[key] = {
+      name,
+      id,
+      description,
+      race,
+      ...rest,
     };
   }
   return result;

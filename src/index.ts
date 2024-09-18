@@ -42,3 +42,7 @@ Object.keys(researchSubjects).length === Object.keys(rawResearchSubjects).length
 Object.keys(weapons).length === Object.keys(rawWeapons).length
   ? console.log("No weapons were lost")
   : console.log("WARNING: Weapons missing!");
+
+Object.keys(shipUnits).length === Object.keys(rawShipUnits).length
+  ? console.log("No ship units were lost")
+  : console.log("WARNING: Ship units missing!");
