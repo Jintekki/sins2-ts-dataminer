@@ -27,7 +27,7 @@ The program will automatically re-run whenever you save as long as you keep the 
 - `PATH_TO_SINS2_FOLDER` (set this to the path to your SINS2 folder. For me, this is set to "C:\Program Files (x86)\Steam\steamapps\common\Sins2")
 - `LOCALIZED_FILE` (set this to "en.localized_text" if you speak english like I do)
 
-# Files
+# Output Files
 
 Files that are practically untouched from the game files are labeled as "raw" and files that are meant to be uploaded to StrategyWiki are labeled as "wiki":
 
@@ -44,6 +44,6 @@ Files that are practically untouched from the game files are labeled as "raw" an
 - WeaponsRaw.json
 - WeaponsWiki.json
 
-# Packages used
+# Packages Used
 
-- `fp-ts`: Used to organize functions in the `flow`
+- `fp-ts`: Used to organize functions in `flow`
