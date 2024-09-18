@@ -12,6 +12,7 @@ import {
 } from "../util";
 import fs from "fs";
 import { flow } from "fp-ts/function";
+import { string } from "fp-ts";
 
 interface ResearchSubjectObject extends GenericObject {}
 interface JSONResearchSubjects extends JSONObject {
