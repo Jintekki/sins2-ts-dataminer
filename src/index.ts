@@ -4,7 +4,7 @@ import {
   researchSubjects,
   rawResearchSubjects,
 } from "./entities/ResearchSubject";
-import { rawWeapons, weapons } from "./entities/Weapon";
+import { rawWeapons, weapons } from "./entities/Weapons";
 // import { rawUnits, shipUnits } from "./entities/Unit";
 import { JSONObject } from "./util";
 
