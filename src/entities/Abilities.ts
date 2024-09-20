@@ -31,12 +31,12 @@ const rawAbilities: JSONAbilities = {
 
 /* MANIPULATE INDIVIDUAL ABILITY OBJECTS */
 // Put functions in this flow that take as input a AbilityObject and output a AbilityObject
-const manipulations = flow(removePropertiesFromObject);
+const transforms = flow(removePropertiesFromObject);
 
 // Include properties to filter out in the array below
-const manipulatedAbilities: JSONAbilities = {
+const transformedAbilities: JSONAbilities = {
   ...objectMap(rawAbilities, (ability: AbilityObject): AbilityObject => {
-    return manipulations(ability, [
+    return transforms(ability, [
       "version",
       "level_source",
       "gui",
@@ -46,7 +46,7 @@ const manipulatedAbilities: JSONAbilities = {
 };
 
 /* ADJUSTMENTS TO ENTIRE JSON AND GET FINAL OUTPUT  */
-const abilities = { ...prettify(manipulatedAbilities) };
+const abilities = { ...prettify(transformedAbilities) };
 
 /* FUNCTIONS */
 /**

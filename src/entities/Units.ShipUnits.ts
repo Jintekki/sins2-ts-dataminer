@@ -35,7 +35,7 @@ const rawUnits: JSONUnits = {
 let rawShipUnits: JSONShipUnits = { ...getShipUnits(rawUnits) };
 
 // Put functions in this flow that take as input a ShipUnitObject and output a ShipUnitObject
-const shipManipulations = flow(
+const shipTransforms = flow(
   removePropertiesFromObject,
   expandCosts,
   extractHealth,
@@ -43,9 +43,9 @@ const shipManipulations = flow(
 );
 
 // Include properties to filter out in the array below
-const manipulatedShipUnits: JSONShipUnits = {
+const transformedShipUnits: JSONShipUnits = {
   ...objectMap(rawShipUnits, (shipUnit: ShipUnitObject): ShipUnitObject => {
-    return shipManipulations(shipUnit, [
+    return shipTransforms(shipUnit, [
       "version",
       "spatial",
       "physics",
@@ -77,7 +77,7 @@ const manipulatedShipUnits: JSONShipUnits = {
 
 /* ADJUSTMENTS TO ENTIRE JSON AND GET FINAL OUTPUT  */
 const localizedShipUnits: JSONShipUnits = {
-  ...localizeNameAndDescription(manipulatedShipUnits),
+  ...localizeNameAndDescription(transformedShipUnits),
 };
 
 const shipUnits = { ...prettify(localizedShipUnits) };

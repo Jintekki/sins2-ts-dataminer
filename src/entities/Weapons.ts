@@ -24,7 +24,7 @@ const rawWeapons: JSONWeapons = {
 
 /* MANIPULATE INDIVIDUAL WEAPON OBJECTS */
 // Put functions in this flow that take as input a WeaponObject and output a WeaponObject
-const manipulations = flow(
+const transforms = flow(
   removePropertiesFromObject,
   localizeName,
   getTravelSpeed,
@@ -32,9 +32,9 @@ const manipulations = flow(
 );
 
 // Include properties to filter out in the array below
-const manipulatedWeapons: JSONWeapons = {
+const transformedWeapons: JSONWeapons = {
   ...objectMap(rawWeapons, (weapon: WeaponObject): WeaponObject => {
-    return manipulations(weapon, [
+    return transforms(weapon, [
       "version",
       "pitch_speed",
       "yaw_speed",
@@ -54,7 +54,7 @@ const manipulatedWeapons: JSONWeapons = {
 };
 
 /* ADJUSTMENTS TO ENTIRE JSON AND GET FINAL OUTPUT  */
-const weapons: JSONWeapons = { ...prettify(manipulatedWeapons) };
+const weapons: JSONWeapons = { ...prettify(transformedWeapons) };
 
 /* FUNCTIONS */
 /**

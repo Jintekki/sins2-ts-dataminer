@@ -37,7 +37,7 @@ let rawStructureUnits: JSONStructureUnits = {
 };
 
 // Put functions in this flow that take as input a StructureUnitObject and output a StructureUnitObject
-const structureManipulations = flow(
+const structureTransforms = flow(
   removePropertiesFromObject,
   expandCosts,
   extractHealth,
@@ -46,11 +46,11 @@ const structureManipulations = flow(
 );
 
 // Include properties to filter out in the array below
-const manipulatedStructureUnits: JSONStructureUnits = {
+const transformedStructureUnits: JSONStructureUnits = {
   ...objectMap(
     rawStructureUnits,
     (structureUnit: StructureUnitObject): StructureUnitObject => {
-      return structureManipulations(structureUnit, [
+      return structureTransforms(structureUnit, [
         "version",
         "spatial",
         "physics",
@@ -83,7 +83,7 @@ const manipulatedStructureUnits: JSONStructureUnits = {
 
 /* ADJUSTMENTS TO ENTIRE JSON AND GET FINAL OUTPUT  */
 const localizedStructureUnits: JSONStructureUnits = {
-  ...localizeNameAndDescription(manipulatedStructureUnits),
+  ...localizeNameAndDescription(transformedStructureUnits),
 };
 
 const structureUnits = { ...prettify(localizedStructureUnits) };

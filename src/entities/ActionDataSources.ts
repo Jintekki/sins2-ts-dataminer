@@ -28,14 +28,14 @@ const rawActionDataSources: JSONActionDataSources = {
 
 /* MANIPULATE INDIVIDUAL ACTION DATA SOURCE OBJECTS */
 // Put functions in this flow that take as input a ActionDataSourceObject and output a ActionDataSourceObject
-const manipulations = flow(removePropertiesFromObject);
+const transforms = flow(removePropertiesFromObject);
 
 // Include properties to filter out in the array below
-const manipulatedActionDataSources: JSONActionDataSources = {
+const transformedActionDataSources: JSONActionDataSources = {
   ...objectMap(
     rawActionDataSources,
     (actionDataSource: ActionDataSourceObject): ActionDataSourceObject => {
-      return manipulations(actionDataSource, [
+      return transforms(actionDataSource, [
         "version",
         "level_source",
         "gui",
@@ -46,7 +46,7 @@ const manipulatedActionDataSources: JSONActionDataSources = {
 };
 
 /* ADJUSTMENTS TO ENTIRE JSON AND GET FINAL OUTPUT  */
-const actionDataSources = { ...prettify(manipulatedActionDataSources) };
+const actionDataSources = { ...prettify(transformedActionDataSources) };
 
 /* FUNCTIONS */
 /**

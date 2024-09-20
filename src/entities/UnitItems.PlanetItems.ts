@@ -30,7 +30,7 @@ const rawUnitItems: JSONUnits = {
 let rawPlanetItems: JSONPlanetItems = { ...getPlanetUnits(rawUnitItems) };
 
 // Put functions in this flow that take as input a PlanetItemObject and output a PlanetItemObject
-const planetItemManipulations = flow(
+const planetItemTransforms = flow(
   removePropertiesFromObject,
   localizeNameAndDescription,
   expandCosts,
@@ -38,11 +38,11 @@ const planetItemManipulations = flow(
 );
 
 // Include properties to filter out in the array below
-const manipulatedPlanetItems: JSONPlanetItems = {
+const transformedPlanetItems: JSONPlanetItems = {
   ...objectMap(
     rawPlanetItems,
     (planetItem: PlanetItemObject): PlanetItemObject => {
-      return planetItemManipulations(planetItem, [
+      return planetItemTransforms(planetItem, [
         "version",
         "hud_icon",
         "tooltip_icon",
@@ -61,7 +61,7 @@ const manipulatedPlanetItems: JSONPlanetItems = {
 };
 
 /* ADJUSTMENTS TO ENTIRE JSON AND GET FINAL OUTPUT  */
-const planetItems: JSONPlanetItems = { ...prettify(manipulatedPlanetItems) };
+const planetItems: JSONPlanetItems = { ...prettify(transformedPlanetItems) };
 
 /* FUNCTIONS */
 /**

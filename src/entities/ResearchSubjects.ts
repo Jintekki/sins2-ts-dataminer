@@ -28,7 +28,7 @@ const rawResearchSubjects: JSONResearchSubjects = {
 
 /* MANIPULATE INDIVIDUAL RESEARCH SUBJECT OBJECTS */
 // Put functions in this flow that take as input a ResearchSubjectObject and output a ResearchSubjectObject
-const manipulations = flow(
+const transforms = flow(
   removePropertiesFromObject,
   expandCosts,
   normalizeTierAndField,
@@ -37,11 +37,11 @@ const manipulations = flow(
 );
 
 // Include properties to filter out in the array below
-const manipulatedResearchSubjects: JSONResearchSubjects = {
+const transformedResearchSubjects: JSONResearchSubjects = {
   ...objectMap(
     rawResearchSubjects,
     (researchSubject: ResearchSubjectObject): ResearchSubjectObject => {
-      return manipulations(researchSubject, [
+      return transforms(researchSubject, [
         "version",
         "field_coord",
         "name_uppercase",
@@ -55,7 +55,7 @@ const manipulatedResearchSubjects: JSONResearchSubjects = {
 };
 
 /* ADJUSTMENTS TO ENTIRE JSON AND GET FINAL OUTPUT  */
-const researchSubjects = { ...prettify(manipulatedResearchSubjects) };
+const researchSubjects = { ...prettify(transformedResearchSubjects) };
 
 /* FUNCTIONS */
 /**
