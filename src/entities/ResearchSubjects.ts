@@ -218,4 +218,18 @@ function prettify(obj: JSONResearchSubjects): JSONResearchSubjects {
   return result;
 }
 
-export { rawResearchSubjects, researchSubjects };
+function getResearchSubjectById(
+  id: string,
+  researchSubjects: JSONResearchSubjects
+): ResearchSubjectObject | undefined {
+  let researchSubjectsCopy = { ...researchSubjects };
+  let result;
+  for (const key in researchSubjectsCopy) {
+    if (researchSubjectsCopy[key].id === id) {
+      result = { ...researchSubjectsCopy[key] };
+    }
+  }
+  return result;
+}
+
+export { rawResearchSubjects, researchSubjects, getResearchSubjectById };

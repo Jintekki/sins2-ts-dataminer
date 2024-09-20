@@ -20,6 +20,7 @@ import {
   rawActionDataSources,
 } from "./entities/ActionDataSources";
 import { JSONObject } from "./util";
+import { rawShipItems, shipItems } from "./entities/UnitItems.ShipItems";
 
 // Write JSON to files
 writeFiles([
@@ -35,10 +36,12 @@ writeFiles([
   // [rawUnitItems, "UnitItemsRaw"],
   // [rawPlanetItems, "PlanetItemsRaw"],
   // [planetItems, "PlanetItemsWiki"],
-  [rawAbilities, "AbilitiesRaw"],
-  [abilities, "AbilitiesWiki"],
   [rawActionDataSources, "ActionDataSourcesRaw"],
   [actionDataSources, "ActionDataSourcesWiki"],
+  [rawAbilities, "AbilitiesRaw"],
+  [abilities, "AbilitiesWiki"],
+  [rawShipItems, "ShipItemsRaw"],
+  [shipItems, "ShipItemsWiki"],
 ]);
 
 function writeFiles(jsonToWrite: Array<[JSONObject, string]>): void {
@@ -85,4 +88,8 @@ Object.keys(abilities).length === Object.keys(rawAbilities).length
 Object.keys(actionDataSources).length ===
 Object.keys(rawActionDataSources).length
   ? console.log("No action data sources were lost")
+  : console.log("WARNING: Action data sources missing!");
+
+Object.keys(shipItems).length === Object.keys(rawShipItems).length
+  ? console.log("No ship items were lost")
   : console.log("WARNING: Action data sources missing!");

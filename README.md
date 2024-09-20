@@ -32,13 +32,15 @@ The program will automatically re-run whenever you save as long as you keep the 
 Files that are practically untouched from the game files are labeled as "raw" and files that are meant to be uploaded to StrategyWiki are labeled as "wiki":
 
 - AbilitiesRaw.json
-- AbilitiesWiki.json (WIP)
+- AbilitiesWiki.json
 - ActionDataSourcesRaw
-- ActionDataSourcesWiki (WIP)
+- ActionDataSourcesWiki
 - PlanetItemsRaw.json
 - PlanetItems.json
 - ResearchSubjectsRaw.json
 - ResearchSubjectsWiki.json
+- ShipItemsRaw.json
+- ShipItemsWiki.json
 - ShipUnitsRaw.json
 - ShipUnitsWiki.json
 - StructuresRaw.json
